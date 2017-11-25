@@ -1,4 +1,7 @@
 package com.artechra.apollo.archdesc
 
-class ArchitecturalDescription {
+data class Element(val name : String)
+
+interface ArchitecturalDescription {
+    fun getStructure() : List<Element>
 }
