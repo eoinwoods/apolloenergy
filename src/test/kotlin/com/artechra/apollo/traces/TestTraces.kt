@@ -6,6 +6,6 @@ import kotlin.test.assertEquals
 class TestTraces {
     @Test
     fun theDefaultImplementationShouldReturnEmptyList() {
-        assertEquals(emptyList(), TraceManagerDefaultImplementation().getRootTraces())
+        assertEquals(1, TraceManagerDefaultImplementation().getRootTraces().size)
     }
 }

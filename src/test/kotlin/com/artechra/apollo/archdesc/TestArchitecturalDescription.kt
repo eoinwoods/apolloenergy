@@ -1,12 +1,12 @@
 package com.artechra.apollo.archdesc
 
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
-import kotlin.test.assertTrue
 
 class TestArchitecturalDescription {
 
     @Test
     fun theNullImplementationShouldReturnEmptyList() {
-        assertTrue { ArchitecturalDescriptionDefaultImpl().getStructure().size == 0 }
+        assertTrue(ArchitecturalDescriptionDefaultImpl().getStructure().size == 0 )
     }
 }
