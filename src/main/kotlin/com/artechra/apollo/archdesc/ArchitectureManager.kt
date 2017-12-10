@@ -4,6 +4,6 @@ import com.artechra.apollo.types.ArchitecturalDescription
 
 data class Element(val name : String)
 
-interface ArchitecturalDescription {
+interface ArchitectureManager {
     fun getStructure() : ArchitecturalDescription
 }

@@ -1,6 +1,6 @@
 package com.artechra.apollo.calculator
 
-import com.artechra.apollo.archdesc.ArchitecturalDescription
+import com.artechra.apollo.archdesc.ArchitectureManager
 import com.artechra.apollo.netinfo.NetInfo
 import com.artechra.apollo.resusage.ResourceUsage
 import com.artechra.apollo.traces.Trace
@@ -9,7 +9,7 @@ import com.artechra.apollo.traces.TraceManager
 class EnergyCalculatorImpl(val resUsage: ResourceUsage,
                            val traceManager: TraceManager,
                            val netInfo: NetInfo,
-                           val archDesc: ArchitecturalDescription) : EnergyCalculator {
+                           val archDesc: ArchitectureManager) : EnergyCalculator {
     override fun calculateEnergyForRequests(): Map<String, Long> {
         val traces = traceManager.getRootTraces()
 

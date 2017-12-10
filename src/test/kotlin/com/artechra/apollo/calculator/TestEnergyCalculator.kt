@@ -1,11 +1,10 @@
 package com.artechra.apollo.calculator
 
-import com.artechra.apollo.archdesc.ArchitecturalDescriptionDefaultImpl
+import com.artechra.apollo.archdesc.ArchitectureManagerDefaultImpl
 import com.artechra.apollo.netinfo.NetInfoDefaultImplementation
 import com.artechra.apollo.resusage.ResourceUsageDefaultImplementation
 import com.artechra.apollo.stubs.StubTraceManager
 import com.artechra.apollo.traces.Trace
-import com.artechra.apollo.traces.TraceManagerDefaultImplementation
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -13,7 +12,7 @@ class TestEnergyCalculator {
 
     @Test
     fun calculationWithStubElementsShouldResultInSingleResult() {
-        val ec = EnergyCalculatorImpl(archDesc = ArchitecturalDescriptionDefaultImpl(),
+        val ec = EnergyCalculatorImpl(archDesc = ArchitectureManagerDefaultImpl(),
                                       netInfo = NetInfoDefaultImplementation(),
                                       resUsage = ResourceUsageDefaultImplementation(),
                                       traceManager = StubTraceManager(listOf(Trace(100, "Trace100", 10000, 20000))))
