@@ -1,6 +1,7 @@
 package com.artechra.apollo.types
 
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class TestTrace {
@@ -55,5 +56,14 @@ class TestTrace {
         val span1 = Span(100, "span100", 100, 200, root)
         val span2 = Span(200, "span200", 99, 300, root)
         val t = Trace(setOf(root, span1, span2))
+    }
+
+    @Test
+    fun traceStartTimeAndEndTimeMatchRoot() {
+        val root  = Span(1, "rootSpan", 100, 500)
+        val span1 = Span(100, "span100", 100, 200, root)
+        val span2 = Span(200, "span200", 110, 300, root)
+        val t = Trace(setOf(root, span1, span2))
+        assertTrue("wrong Trace start or end times", t.getStartTime() == 100L && t.getEndTime() == 500L)
     }
 }

@@ -1,7 +1,6 @@
 package com.artechra.apollo.resusage
 
-data class ResourceUsageMetric(val timestamp : Long, val elementId : String, val cpuTicks : Long,
-                               val memUsage : Long, val ioBytes : Long, val networkBytes : Long)
+import com.artechra.apollo.types.ResourceUsageMetric
 
 interface ResourceUsage {
     fun getResourceUsage(elementId : String, startTime : Long, endTime : Long) : ResourceUsageMetric
