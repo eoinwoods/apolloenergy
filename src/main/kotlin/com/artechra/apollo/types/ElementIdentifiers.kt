@@ -1,3 +1,3 @@
 package com.artechra.apollo.types
 
-data class ElementIdentifiers(val ipAddress : String, val containerId : String)
+data class ElementIdentifiers(val name : String, val ipAddress : String? = null, val containerId : String? = null)
