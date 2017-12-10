@@ -1,13 +1,11 @@
 package com.artechra.apollo.traces
 
-class TraceManagerDefaultImplementation : TraceManager {
-    override fun getRootTraces(): List<Trace> {
-        return listOf(Trace(100, "Trace100", 10000, 20000))
-    }
+import com.artechra.apollo.types.Span
+import com.artechra.apollo.types.Trace
 
-    override fun getTraceElements(traceId : Int): List<Trace> {
-        return listOf(Trace(200, "Trace200", 15000, 19000),
-                        Trace(100, "Trace100", 10000, 20000))
+class TraceManagerDefaultImplementation : TraceManager {
+    override fun getTraces(): List<Trace> {
+        return listOf(Trace(setOf(Span(100, "Trace100", 10000, 20000))))
     }
 
 }

@@ -1,8 +1,8 @@
 package com.artechra.apollo.traces
 
-data class Trace(val traceId: Int, val elementId: String, val startTime: Long, val endTime: Long, val parent: Trace? = null)
+import com.artechra.apollo.types.Span
+import com.artechra.apollo.types.Trace
 
 interface TraceManager {
-    fun getRootTraces() : List<Trace>
-    fun getTraceElements(traceId : Int) : List<Trace>
+    fun getTraces(): List<Trace>
 }
