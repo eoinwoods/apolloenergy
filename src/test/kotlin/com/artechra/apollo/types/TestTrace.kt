@@ -1,7 +1,6 @@
 package com.artechra.apollo.types
 
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
 class TestTrace {
@@ -34,6 +33,12 @@ class TestTrace {
     fun rootSpanShouldBeIdentifiedWithSingleSpan() {
         val t = Trace(setOf(root))
         assertEquals("wrong root for trace", t.root, root)
+    }
+
+    @Test
+    fun childrenShouldBeSpansLessRoot() {
+        val t = Trace(setOf(root, span1, span2))
+        assertEquals("unexpected set of children", t.children, setOf(span1, span2))
     }
 
     @Test(expected = IllegalArgumentException::class)
