@@ -10,15 +10,18 @@ import org.junit.Test
 
 class TestTraceCalculator {
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun trivialTraceShouldReturnRootUsage() {
-        val emptyNetInfo = StubNetInfo(emptyMap<String,String>(), emptyMap<String,String>())
-        val emptyResourceUsageManager = StubResourceUsageManager(emptyMap<String, ResourceUsage>())
+        val networkAddr = "192.168.1.2:0"
+        val containerId = "abcdefghi123"
+        val emptyNetInfo = StubNetInfo(hashMapOf(networkAddr to containerId),
+                hashMapOf(containerId to networkAddr))
+        val emptyResourceUsageManager = StubResourceUsageManager(hashMapOf(containerId to ResourceUsage(1, 2, 3, 4)))
         val nullTrace = Trace(setOf(Span(100, "192.168.1.2:0", 100000, 110000)))
         val tc = TraceCalculator(nullTrace, emptyResourceUsageManager, emptyNetInfo)
         val resUsage = tc.calculateTotalResourceUsage()
 
-        assertEquals("Expected zero usage for empty trace", 0,
+        assertEquals("Expected root span usage from calculator", 10,
                 resUsage.totalCpu + resUsage.totalMemory + resUsage.totalDiskIo + resUsage.totalNetIo)
     }
 }
