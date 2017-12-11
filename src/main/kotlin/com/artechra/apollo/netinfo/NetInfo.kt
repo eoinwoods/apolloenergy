@@ -5,4 +5,7 @@ typealias AddressContainerMap = Map<String, String>
 interface NetInfo {
     fun getAddressesForContainers() : ContainerAddressMap
     fun getContainersForAddresses() : AddressContainerMap
+
+    fun getContainerIdWithAddress(ipAddr : String) : String?
+    fun getAddressForContainerId(containerId : String) : String?
 }
