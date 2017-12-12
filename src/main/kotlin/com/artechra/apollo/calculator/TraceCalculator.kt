@@ -16,11 +16,9 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
 
         val containers = networkMap.getContainersForAddresses()
         for (span in trace.spans) {
-            val containerId = containers.get(ipAddrFromNetworkAddress(span.networkAddress))
-            if (containerId == null) {
-                System.err.println("No container found for ipAddr " + ipAddrFromNetworkAddress(span.networkAddress) + " in span " + span.spanId)
-                continue
-            }
+            val containerId =
+                    containers.get(span.networkAddress) ?:
+                            throw IllegalStateException("No container found for ipAddr " + span.networkAddress + " in span " + span.spanId)
             val resourceMetrics =
                     resourceUsageMgr.getResourceUsage(containerId, span.startTime, span.endTime) ?:
                         throw IllegalStateException("Could not find resource usage for container " + containerId +
@@ -28,16 +26,9 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
             totalCpuTicks    += resourceMetrics.usage.totalCpu
             totalMemoryMb    += resourceMetrics.usage.totalMemory
             totalDiskIoBytes += resourceMetrics.usage.totalDiskIo
-            totalMemoryMb    += resourceMetrics.usage.totalNetIo
+            totalNetIoBytes  += resourceMetrics.usage.totalNetIo
         }
         return ResourceUsage(totalCpuTicks, totalMemoryMb, totalDiskIoBytes, totalNetIoBytes)
-    }
-
-    private fun ipAddrFromNetworkAddress(networkAddress : String) : String {
-        return networkAddress.split(":")[0]
-    }
-    private fun portFromNetworkAddress(networkAddress : String) : String {
-        return networkAddress.split(":")[1]
     }
 
 }

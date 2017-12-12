@@ -8,6 +8,7 @@ class StubResourceUsageManager(val resourceRecords: Map<String, ResourceUsage>) 
 
     override fun getResourceUsage(containerId: String, startTime: Long, endTime: Long): ResourceUsageMetric? {
         val rr = resourceRecords[containerId] ?: throw IllegalStateException("No resource record for CID " + containerId)
-        return ResourceUsageMetric(System.currentTimeMillis(), containerId, rr)
+        val rum = ResourceUsageMetric(System.currentTimeMillis(), containerId, rr)
+        return rum
     }
 }
