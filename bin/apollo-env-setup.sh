@@ -27,5 +27,5 @@ sudo docker run -d --name zipkinserver -p 9411:9411 openzipkin/zipkin
 # https://hub.docker.com/_/telegraf/
 sudo docker run -d --name influxdb -p 8083:8083 -p 8086:8086 influxdb
 # Need to copy apollo_telegraf.conf into place as part of setup
-sudo docker run --net=container:influxdb -v ~/etc/apollo_telegraf.conf:/etc/telegraf/telegraf.conf:ro telegraf
+sudo docker run --net=container:influxdb --name telegraf -v ~/etc/apollo_telegraf.conf:/etc/telegraf/telegraf.conf:ro telegraf
 
