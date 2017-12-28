@@ -1,0 +1,87 @@
+# This file uses the version 3 docker-compose file format, described here:
+# https://docs.docker.com/compose/compose-file/#version-3
+#
+# This runs Zipkin (server, MySQL DB and dependency), Telegraf and 
+# InfluxDB attached to Telegraf, using docker-compose default networking
+# to connect the containers.
+#
+# This is simplistic but is intended to allow the Apollo energy monitoring
+# environment dependencies to be started quickly as Docker containers on a
+# single host.
+#
+# It is heavily based on the Ziplin example from 
+# https://github.com/openzipkin/docker-zipkin/blob/master/docker-compose.yml
+#
+
+version: '3'
+
+services:
+  zipkindb:
+    image: openzipkin/zipkin-mysql
+    container_name: mysql
+    ports:
+      - 3306:3306
+
+  # The zipkin process services the UI, and also exposes a POST endpoint that
+  # instrumentation can send trace data to. Scribe is disabled by default.
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/tree/1.19.0/zipkin-server#environment-variables
+    environment:
+      - STORAGE_TYPE=mysql
+      # Point the zipkin at the storage backend
+      - MYSQL_HOST=mysql
+      # Uncomment to enable scribe
+      # - SCRIBE_ENABLED=true
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+      # Uncomment if you set SCRIBE_ENABLED=true
+      # - 9410:9410
+    depends_on:
+      - zipkindb 
+
+  # Adds a cron to process spans since midnight every hour, and all spans each day
+  # This data is served by http://192.168.99.100:8080/dependency
+  #
+  # For more details, see https://github.com/openzipkin/docker-zipkin-dependencies
+  dependencies:
+    image: openzipkin/zipkin-dependencies
+    container_name: dependencies
+    entrypoint: crond -f
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_HOST=mysql
+      # Add the baked-in username and password for the zipkin-mysql image
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      # Uncomment to see dependency processing logs
+      # - ZIPKIN_LOG_LEVEL=DEBUG
+      # Uncomment to adjust memory used by the dependencies job
+      # - JAVA_OPTS=-verbose:gc -Xms1G -Xmx1G
+    depends_on:
+      - zipkindb 
+
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    ports:
+      - 8083:8083
+      - 8086:8086
+
+  telegraf:
+    image: telegraf
+    container_name: telegraf
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/etc/apollo_telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - influxdb
+    network_mode: "service:influxdb"
+
+    

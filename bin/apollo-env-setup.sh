@@ -22,10 +22,13 @@ sudo apt-get install -y docker-ce
 sudo docker run hello-world
 
 # https://zipkin.io/pages/quickstart
+# Remember the -d which means "detach" to run in background
 sudo docker run -d --name zipkinserver -p 9411:9411 openzipkin/zipkin
 
 # https://hub.docker.com/_/telegraf/
 sudo docker run -d --name influxdb -p 8083:8083 -p 8086:8086 influxdb
 # Need to copy apollo_telegraf.conf into place as part of setup
-sudo docker run --net=container:influxdb --name telegraf -v ~/etc/apollo_telegraf.conf:/etc/telegraf/telegraf.conf:ro telegraf
+sudo docker run -d --net=container:influxdb --name telegraf -v /var/run/docker.sock:/var/run/docker.sock -v ~/etc/apollo_telegraf.conf:/etc/telegraf/telegraf.conf:ro telegraf
 
+# -it == interactive and allocate a tty
+sudo docker run -it --net=container:influxdb influxdb influx
