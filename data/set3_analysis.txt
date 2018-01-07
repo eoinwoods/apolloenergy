@@ -1,0 +1,77 @@
+Span Analysis on Set 3
+======================
+
+Three traces (select hex(trace_id), from_unixtime(start_ts/1000000), name, duration from zipkin_spans where trace_id = id)
+
+TraceID				Start Time					Name					Duration
+-------				----------					----					--------
+54C92796854B15C8	2018-01-06 11:17:42.3080	http:/invoke/single-cpu	2514196
+C925BFAC9556A68A	2018-01-06 11:17:28.7460	http:/invoke/three-cpu	3549836
+F59EAF6D7B9C5C49	2018-01-06 11:17:15.8110	http:/invoke/single-cpu	2925327
+
+Analyse F59EAF6D7B9C5C49 as a starting point.
+
+Turns out the solution is to find the 'sr' ("server received") annotation spans and extract the start time, end time, IP address and port number from them.
+
+Example query:
+
+select hex(s.id), a_key, name, start_ts, start_ts+duration as 'end_ts', inet_ntoa(endpoint_ipv4 & conv('ffffffff', 16, 10)), endpoint_port 
+from zipkin_spans s, zipkin_annotations a 
+where hex(s.trace_id) = upper('f59eaf6d7B9c5c49') 
+and s.trace_id = a.trace_id 
+and s.id = a.span_id
+and a_key = 'sr'
+order by start_ts;
+
+(The timestamps can be converted to human form using "from_unixtime(value/1000000))" expressions)
+
+hex(s.id)			a_key name                     start_ts         end_ts           IPv4       Port
+---------           ----- ----                     --------         ------           ----       ----
+F59EAF6D7B9C5C49	sr	  http:/invoke/single-cpu  1515237435811000	1515237438736327 172.18.0.7	9999
+3D5775034F9411B8	sr	  http:/burncpu	           1515237435864000	1515237438722000 172.18.0.6	9001
+
+Endpoint 172.18.0.7 is container 5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228
+	Short ID: 5843205e6e17
+Endpoint 172.17.0.6 is container ddfb6dde9f71b17dff3acda7a4f813dbf9ae3a536456765f7eca9b1d96a845fb
+	Short ID: ddfb6dde9f71
+
+                                                                                                         
+select container_name, container_id from docker_container_cpu where time >= 1515237435811000 and time <= 1515237438736327
+
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237352000000000 and time < 1515237442000000000
+
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time >= 1515237435811000000 /* and time <= 1515237438736327000 */
+
+Times for container 5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228 / 172.18.07:
+
+InfluxDB Start: 1515237202000000000
+Zipkin Start:   1515237435811000(000) - 1515237435811000000 - 20180106T11:17:15.811
+Zipkin End:     1515237438736327(000) - 1515237438736327000 - 20180106T11:17:18.736
+InfluxDB End:   1515237482000000000
+
+
+
+Relevant data from docker_container_cpu (using query above) is:
+
+time                container_name usage_total
+----                -------------- -----------
+1515237422000000000 gateway        30305812441
+1515237432000000000 gateway        30318691887  - 20180106T11:17:12
+1515237442000000000 gateway        32183833555  - 20180106T11:17:22
+1515237452000000000 gateway        32231405970
+
+This illustrates the problem - the Zipkin trace is between 74358 (20180106T11:17:15.811) and 74387 (20180106T11:17:18.736)
+The measurements are at 74320 (11:17:12) and 74420 (11:17:22).  So the measurements are every 10 seconds but a container
+execution is (obviously) going to be shorter than this and not line up with nice 10 second intervals.  
+=> need to interpolate.
+- in this example the usage in the interval is 1865141668 ticks, which is ~186514166 per second or ~18651416 per 1/10 sec.  Hence can work out that:
+   - usage at start is 3.8 seconds diffence or 38*18651416 (708753808) + 30318691887 = 31027445695
+   - usage at end is 6.7 seconds difference of 67*18651416 (1249644872) + 30318691887 = 31568336759
+   - Difference is 540891064 CPU ticks
+
+The technical problem is how to (efficiently) find the prior and following measurements from InfluxDB.
+   - pragmatically perhaps just subtract the sample interval from the start and add to the end and select between these?
+   
+
+
+
