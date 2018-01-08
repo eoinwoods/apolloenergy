@@ -35,12 +35,19 @@ Endpoint 172.18.0.7 is container 5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43
 Endpoint 172.17.0.6 is container ddfb6dde9f71b17dff3acda7a4f813dbf9ae3a536456765f7eca9b1d96a845fb
 	Short ID: ddfb6dde9f71
 
-                                                                                                         
+From this, how do we extract the resource usage for a span?  Taking CPU as our first example:
+
+Simple range query returning no data:                
 select container_name, container_id from docker_container_cpu where time >= 1515237435811000 and time <= 1515237438736327
 
-select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237352000000000 and time < 1515237442000000000
+Query selecting total CPU for a specific container in time span with samples:
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237352000000000 and time < 1515237442000000000 
 
-select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time >= 1515237435811000000 /* and time <= 1515237438736327000 */
+Same query showing count (8 rows):
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237352000000000 and time < 1515237442000000000 
+
+Narrow query to container execution time (no rows):
+select count(usage_total) from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 and time < 1515237438736327000 
 
 Times for container 5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228 / 172.18.07:
 
@@ -66,12 +73,51 @@ execution is (obviously) going to be shorter than this and not line up with nice
 => need to interpolate.
 - in this example the usage in the interval is 1865141668 ticks, which is ~186514166 per second or ~18651416 per 1/10 sec.  Hence can work out that:
    - usage at start is 3.8 seconds diffence or 38*18651416 (708753808) + 30318691887 = 31027445695
-   - usage at end is 6.7 seconds difference of 67*18651416 (1249644872) + 30318691887 = 31568336759
-   - Difference is 540891064 CPU ticks
+   - usage at end is 6.7 seconds difference or 67*18651416 (1249644872) + 30318691887 = 31568336759
+   - Difference is 540891064 CPU ticks (this validates well using an Excel graph)
 
 The technical problem is how to (efficiently) find the prior and following measurements from InfluxDB.
    - pragmatically perhaps just subtract the sample interval from the start and add to the end and select between these?
+   - adding 1 minute before and after results in ~2 minutes of data
+   - 2 minutes of samples is ~120 max => manageable quantity
    
+Modified queries:
 
+Select data for container from range 1 min before and 1 min after it's exec time:
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
+Query now returns '11' as the count:
+select count(usage_total) from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
+Code can now process this data set to find the rows closest to the container execution time.
+
+Using the same approach for other measures ...
+
+For disk IO (no data for our containers - NOTE can have no rows=>no usage):
+select * from docker_container_blkio where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+Network IO:
+select time, rx_bytes, tx_bytes from docker_container_net where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+Memory:
+select time, usage, max_usage from docker_container_mem where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+Memory looks a bit problematic:
+
+select time, usage, max_usage from docker_container_mem where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+name: docker_container_mem
+time                usage      max_usage
+----                -----      ---------
+1515237382000000000 1121034240 1137115136
+1515237392000000000 1121034240 1137115136
+1515237402000000000 1121034240 1137115136
+1515237412000000000 1121038336 1137115136
+1515237422000000000 1121038336 1137115136
+1515237432000000000 1121038336 1137115136
+1515237442000000000 1126178816 1144688640
+1515237452000000000 1124999168 1144688640
+1515237462000000000 1124478976 1144688640
+1515237472000000000 1124294656 1144688640
+1515237482000000000 1124294656 1144688640
+
+The max_usage values suggest that 'usage' is fluctuating between measurements (which is perfectly possible) meaning that interpolation isn't really valid.  Looking at all the data, max_usage always seems to be a little higher than 'usage' ... perhaps it is just measureing something slightly different?  Or summing in a way that results in this?  There are reasons though it's quite a problematic measure for sampling.
