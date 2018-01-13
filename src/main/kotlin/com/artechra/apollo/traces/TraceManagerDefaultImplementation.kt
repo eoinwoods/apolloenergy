@@ -5,7 +5,7 @@ import com.artechra.apollo.types.Trace
 
 class TraceManagerDefaultImplementation : TraceManager {
     override fun getTraces(): List<Trace> {
-        return listOf(Trace(setOf(Span(100, "Trace100", 10000, 20000))))
+        return listOf(Trace(setOf(Span(100, "10.10.1.1:1000", 10000, 20000))))
     }
 
 }
