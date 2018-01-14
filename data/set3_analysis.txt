@@ -80,6 +80,14 @@ The technical problem is how to (efficiently) find the prior and following measu
    - pragmatically perhaps just subtract the sample interval from the start and add to the end and select between these?
    - adding 1 minute before and after results in ~2 minutes of data
    - 2 minutes of samples is ~120 max => manageable quantity
+
+
+Timestamps:
+   Unix      1515281141           (10 digits)
+   Millisec: 1515237438736        (13 digits)
+   Microsec: 1515237438736327     (16 digits)
+   Nanosec:  1515237438736327000  (19 digits)
+
    
 Modified queries:
 
@@ -88,6 +96,11 @@ select time, container_name, usage_total from docker_container_cpu where contain
 
 Query now returns '11' as the count:
 select count(usage_total) from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+Now select data around the start time for the Zipkin trace:
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 20s and time < 1515237435811000000 + 20s
+
+How much of a "window" is needed around the time of interest?  Telegraf collects data every 10 seconds (this is our configuration setting).  If we collect data between t - 10s and t + 10s then assuming perfect 10 second intervals we must always get a minimum of 2 samples (use a picture to be sure).  However this relies on Telegraf sample intervals being perfect, so we'll double it and use t - 20s and t + 20s.
 
 Code can now process this data set to find the rows closest to the container execution time.
 
