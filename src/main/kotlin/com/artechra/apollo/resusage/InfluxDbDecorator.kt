@@ -7,6 +7,9 @@ import org.influxdb.impl.InfluxDBResultMapper
 import kotlin.math.roundToLong
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
+
+    val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
+
     val influxdb: InfluxDB
 
     val QUERY_WINDOW = "20s"
@@ -14,7 +17,7 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
             "from docker_container_cpu " +
             "where cpu = 'cpu-total' " +
             "and container_id = '%s' " +
-            "and time > %d - %s and time < %d + %s" +
+            "and time > %d - %s and time < %d + %s " +
             "order by time"
 
     init {
@@ -29,38 +32,38 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         return influxdb
     }
 
-    fun getBestCpuMeasureForTime(containerId: String, time: Long): Long {
+    fun getBestCpuMeasureForTime(containerId: String, timeMsec: Long): Long {
         //select time, container_name, usage_total from docker_container_cpu
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        val query = CPU_QUERY_TEMPLATE.format(containerId, time, QUERY_WINDOW, time, QUERY_WINDOW)
-        println(query)
+        val timeAsNanoSec = msecToNanoSec(timeMsec)
+        val query = CPU_QUERY_TEMPLATE.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
         val cpuQuery = Query(query, dbName)
         val result = influxdb.query(cpuQuery)
 
         val resultMapper = InfluxDBResultMapper();
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java);
 
-        return findBestValueForPointFromList(cpuList, time)
+        return findBestValueForPointFromList(cpuList, timeMsec)
     }
 
     fun close() {
         this.influxdb.close()
     }
 
-    fun findBestValueForPointFromList(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Long {
+    fun findBestValueForPointFromList(cpuValues: MutableList<CpuMeasurement>, pointTimeMillis: Long): Long {
         if (cpuValues.size < 2) {
             throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + cpuValues)
         }
 
-        val (before, after) = findMeasurementsAroundPointInTime(cpuValues, timeMillis)
+        val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
 
-        for (v in cpuValues) {
-            TODO("CONTINUE FROM HERE TO FIND CONTAINING VALUES")
-        }
+        val estimatedCpuTime = interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
+                                                              after.getTimeMillis(), after.getCpuUsage(),
+                                                              pointTimeMillis)
 
-        return -1
+        return estimatedCpuTime
     }
 
     fun interpolateBetweenPoints(point1 : Long, value1 : Long, point2 : Long, value2 : Long, requiredPoint : Long) : Long {
@@ -93,6 +96,10 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         val _before: CpuMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
         val _after: CpuMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
         return Pair(_before, _after)
+    }
+
+    fun msecToNanoSec(msec : Long) : Long {
+        return msec * MSEC_TO_NANOSEC_MULTIPLIER
     }
 
 

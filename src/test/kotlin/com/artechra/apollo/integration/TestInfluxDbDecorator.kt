@@ -6,7 +6,6 @@ import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -64,10 +63,9 @@ class TestInfluxDbDecorator {
     }
 
     @Test
-    @Ignore
     fun testThatCpuUsageIsReturned() {
         val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINERID, SPAN_TIME_MS)
-        assertEquals(31027445695, cpuUsage)
+        assertEquals(31029497377, cpuUsage)
     }
 
     fun getCpuMeasurements() : MutableList<CpuMeasurement>{
