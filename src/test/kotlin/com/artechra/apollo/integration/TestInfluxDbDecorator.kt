@@ -56,6 +56,7 @@ class TestInfluxDbDecorator {
         val result = dbconn?.query(query)
         val resultMapper = InfluxDBResultMapper()
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java!!)
+        println(cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
         assertEquals(2414055725, cpuList[0].cpuUsage)

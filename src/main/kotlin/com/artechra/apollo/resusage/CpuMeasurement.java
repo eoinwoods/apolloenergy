@@ -7,7 +7,7 @@ import org.influxdb.annotation.Column;
 import org.influxdb.annotation.Measurement;
 
 @Measurement(name = "docker_container_cpu")
-public class CpuMeasurement {
+public class CpuMeasurement implements GenericMeasurement {
 
     @Column(name = "time")
     Instant timeMillis;
@@ -34,6 +34,10 @@ public class CpuMeasurement {
 
     public long getCpuUsage() {
         return cpuUsage ;
+    }
+
+    public long getMeasurementValue() {
+        return this.getCpuUsage();
     }
 
 

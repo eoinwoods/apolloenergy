@@ -44,7 +44,7 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         val resultMapper = InfluxDBResultMapper();
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java);
 
-        return findBestValueForPointFromList(cpuList, timeMsec)
+        return findBestValueForPointFromList(cpuList.toList(), timeMsec)
     }
 
     fun close() {
@@ -54,40 +54,40 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
 
     companion object {
 
-        fun findBestValueForPointFromList(cpuValues: MutableList<CpuMeasurement>, pointTimeMillis: Long): Long {
-            if (cpuValues.size < 2) {
-                throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + cpuValues)
+        fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
+            if (values.size < 2) {
+                throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + values)
             }
 
-            val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
+            val (before, after) = findMeasurementsAroundPointInTime(values, pointTimeMillis)
 
-            val estimatedCpuTime = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
-                    after.getTimeMillis(), after.getCpuUsage(),
+            val bestValueForPoint = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getMeasurementValue(),
+                    after.getTimeMillis(), after.getMeasurementValue(),
                     pointTimeMillis)
 
-            return estimatedCpuTime
+            return bestValueForPoint
         }
 
 
-        fun findMeasurementsAroundPointInTime(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Pair<CpuMeasurement, CpuMeasurement> {
-            var before: CpuMeasurement? = null
-            var after: CpuMeasurement? = null
+        fun findMeasurementsAroundPointInTime(values: List<GenericMeasurement>, timeMillis: Long): Pair<GenericMeasurement, GenericMeasurement> {
+            var before: GenericMeasurement? = null
+            var after: GenericMeasurement? = null
 
-            for (i in 0..cpuValues.size - 2) {
-                if (cpuValues[i].getTimeMillis() <= timeMillis && timeMillis <= cpuValues[i + 1].getTimeMillis()) {
-                    before = cpuValues[i]
+            for (i in 0..values.size - 2) {
+                if (values[i].getTimeMillis() <= timeMillis && timeMillis <= values[i + 1].getTimeMillis()) {
+                    before = values[i]
                     break
                 }
             }
 
-            for (i in cpuValues.size - 1 downTo 1) {
-                if (cpuValues[i].getTimeMillis() >= timeMillis && timeMillis >= cpuValues[i - 1].getTimeMillis()) {
-                    after = cpuValues[i]
+            for (i in values.size - 1 downTo 1) {
+                if (values[i].getTimeMillis() >= timeMillis && timeMillis >= values[i - 1].getTimeMillis()) {
+                    after = values[i]
                     break
                 }
             }
-            val _before: CpuMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
-            val _after: CpuMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
+            val _before: GenericMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
+            val _after: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
             return Pair(_before, _after)
         }
     }
