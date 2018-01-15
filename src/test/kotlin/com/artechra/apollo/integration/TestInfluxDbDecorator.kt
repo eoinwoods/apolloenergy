@@ -11,12 +11,12 @@ import kotlin.test.assertEquals
 
 
 class TestInfluxDbDecorator {
-    val DBURL = "http://localhost:8086"
+    private val DBURL = TestConstants.INFLUX_URL
+    private val DATABASE = TestConstants.DB_NAME
 
-    // These values correspond to data in test data set 3
-    private val CONTAINERID = "5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228"
-    private val SPAN_TIME_MS = 1515237435811
-    private val DATABASE = "telegraf"
+    private val CONTAINERID = TestConstants.CONTAINERID
+    private val SPAN_TIME_MS = TestConstants.SPAN_START_TIME_MS
+    private val TEST_SET     = TestConstants.TEST_SET_NAME
 
     private var influxdb: InfluxDbDecorator? = null
 
@@ -46,7 +46,7 @@ class TestInfluxDbDecorator {
         assertEquals("data_set", result?.results?.get(0)?.getSeries()?.get(0)?.getColumns()?.get(2))
         // This is a little arcane but is a reflection of InfluxDB's quite complex result set structure
         val resultValue = result!!.results[0]!!.series[0]!!.values[0][2] as String
-        assertEquals("set3", resultValue)
+        assertEquals(TEST_SET, resultValue)
     }
 
     @Test
