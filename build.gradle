@@ -9,6 +9,9 @@ buildscript {
 }
 apply plugin: 'kotlin'
 
+// I only have a few Java source files so I'm mixing them into the Kotlin
+// source directories, which is supported, but the sourceSets needs set up
+// to reflect this
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
     main.java.srcDirs += 'src/main/kotlin'
