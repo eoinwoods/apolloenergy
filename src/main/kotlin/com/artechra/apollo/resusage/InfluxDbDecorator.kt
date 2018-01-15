@@ -1,10 +1,10 @@
 package com.artechra.apollo.resusage
 
+import com.artechra.apollo.types.Util
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
-import kotlin.math.roundToLong
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
 
@@ -36,7 +36,7 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        val timeAsNanoSec = msecToNanoSec(timeMsec)
+        val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = CPU_QUERY_TEMPLATE.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
         val cpuQuery = Query(query, dbName)
         val result = influxdb.query(cpuQuery)
@@ -58,7 +58,7 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
 
         val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
 
-        val estimatedCpuTime = interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
+        val estimatedCpuTime = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
                 after.getTimeMillis(), after.getCpuUsage(),
                 pointTimeMillis)
 
@@ -66,17 +66,6 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
     }
 
     companion object {
-        val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
-
-        fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
-            val timeDiff = point2 - point1
-            val valueDiff = value2 - value1
-
-            val delta = valueDiff / timeDiff.toDouble()
-
-            val requiredValue = value1 + ((requiredPoint - point1) * delta).roundToLong()
-            return requiredValue
-        }
 
         fun findMeasurementsAroundPointInTime(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Pair<CpuMeasurement, CpuMeasurement> {
             var before: CpuMeasurement? = null
@@ -99,11 +88,5 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
             val _after: CpuMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
             return Pair(_before, _after)
         }
-
-        fun msecToNanoSec(msec: Long): Long {
-            return msec * MSEC_TO_NANOSEC_MULTIPLIER
-        }
     }
-
-
 }

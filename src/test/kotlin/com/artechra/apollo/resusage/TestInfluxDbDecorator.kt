@@ -47,36 +47,4 @@ class TestInfluxDbDecorator {
         assertEquals(1515237452000, after.getTimeMillis())
     }
 
-    @Test
-    fun testThatInterpolationOfLongIsValid() {
-
-        val t1 = 1000L
-        val v1 = 4598L
-        val t2 = 1050L
-        val v2 = 4712L
-        val requiredPoint = 1031L
-
-        assertEquals(4669, InfluxDbDecorator.interpolateBetweenPoints(t1, v1, t2, v2, requiredPoint))
-    }
-
-    @Test
-    fun testThatInterpolationToFirstPointIsCorrect() {
-        val t1 = 1000L
-        val v1 = 4598L
-        val t2 = 1050L
-        val v2 = 4712L
-        val requiredPoint = 1000L
-        assertEquals(4598, InfluxDbDecorator.interpolateBetweenPoints(t1, v1, t2, v2, requiredPoint))
-    }
-
-    @Test
-    fun testThatInterpolationToLastPointIsCorrect() {
-        val t1 = 1000L
-        val v1 = 4598L
-        val t2 = 1050L
-        val v2 = 4712L
-        val requiredPoint = 1050L
-        assertEquals(4712, InfluxDbDecorator.interpolateBetweenPoints(t1, v1, t2, v2, requiredPoint))
-    }
-
 }
