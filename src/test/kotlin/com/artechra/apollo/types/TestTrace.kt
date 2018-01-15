@@ -14,17 +14,17 @@ class TestTrace {
     // so testing it here seems ok
     @Test(expected = IllegalArgumentException::class)
     fun spanWithStartAfterEndShouldBeRejected() {
-        val s = Span(100, "s100", 100, 99)
+        Span(100, "s100", 100, 99)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun spanWithIllegalNetworkAddressFormatShouldBeRejected() {
-        val s = Span(100, "192.168.1.1", 100, 200)
+        Span(100, "192.168.1.1", 100, 200)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun spanWithEmptyNetworkAddressShouldBeRejected() {
-        val s = Span(100, "", 100, 200)
+        Span(100, "", 100, 200)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -55,7 +55,7 @@ class TestTrace {
 
     @Test(expected = IllegalArgumentException::class)
     fun traceWithTwoRootsShouldBeRejected() {
-        val t = Trace(setOf(
+        Trace(setOf(
                 Span(100, "192.168.1.1:1000", 10, 20),
                 Span(200, "10.10.10.1:100", 10, 20)
         ))
@@ -66,7 +66,7 @@ class TestTrace {
         val root  = Span(1, "1.1.1.1:1", 100, 500)
         val span1 = Span(100, "10.10.10.1:100", 100, 200, root)
         val span2 = Span(200, "192.168.1.1:1456", 99, 300, root)
-        val t = Trace(setOf(root, span1, span2))
+        Trace(setOf(root, span1, span2))
     }
 
     @Test
