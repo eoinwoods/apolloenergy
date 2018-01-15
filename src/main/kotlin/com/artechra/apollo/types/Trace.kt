@@ -31,8 +31,6 @@ data class Trace(val spans : Set<Span>) {
     }
 
     private fun validateTimes(spans : Set<Span>) : Boolean {
-        var valid : Boolean = true
-
         var minTime : Long = Long.MAX_VALUE
         var maxTime : Long = 0
 
