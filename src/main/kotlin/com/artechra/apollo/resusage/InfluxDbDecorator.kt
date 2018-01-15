@@ -8,7 +8,6 @@ import kotlin.math.roundToLong
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
 
-    val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
 
     val influxdb: InfluxDB
 
@@ -60,46 +59,50 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
 
         val estimatedCpuTime = interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
-                                                              after.getTimeMillis(), after.getCpuUsage(),
-                                                              pointTimeMillis)
+                after.getTimeMillis(), after.getCpuUsage(),
+                pointTimeMillis)
 
         return estimatedCpuTime
     }
 
-    fun interpolateBetweenPoints(point1 : Long, value1 : Long, point2 : Long, value2 : Long, requiredPoint : Long) : Long {
-        val timeDiff = point2 - point1
-        val valueDiff = value2 - value1
+    companion object {
+        val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
 
-        val delta = valueDiff/timeDiff.toDouble()
+        fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
+            val timeDiff = point2 - point1
+            val valueDiff = value2 - value1
 
-        val requiredValue = value1 + ((requiredPoint - point1) * delta).roundToLong()
-        return requiredValue
-    }
+            val delta = valueDiff / timeDiff.toDouble()
 
-    fun findMeasurementsAroundPointInTime(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Pair<CpuMeasurement, CpuMeasurement> {
-        var before: CpuMeasurement? = null
-        var after: CpuMeasurement? = null
-
-        for (i in 0..cpuValues.size - 2) {
-            if (cpuValues[i].getTimeMillis() <= timeMillis && timeMillis <= cpuValues[i + 1].getTimeMillis()) {
-                before = cpuValues[i]
-                break
-            }
+            val requiredValue = value1 + ((requiredPoint - point1) * delta).roundToLong()
+            return requiredValue
         }
 
-        for (i in cpuValues.size - 1 downTo 1) {
-            if (cpuValues[i].getTimeMillis() >= timeMillis && timeMillis >= cpuValues[i - 1].getTimeMillis()) {
-                after = cpuValues[i]
-                break
-            }
-        }
-        val _before: CpuMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
-        val _after: CpuMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
-        return Pair(_before, _after)
-    }
+        fun findMeasurementsAroundPointInTime(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Pair<CpuMeasurement, CpuMeasurement> {
+            var before: CpuMeasurement? = null
+            var after: CpuMeasurement? = null
 
-    fun msecToNanoSec(msec : Long) : Long {
-        return msec * MSEC_TO_NANOSEC_MULTIPLIER
+            for (i in 0..cpuValues.size - 2) {
+                if (cpuValues[i].getTimeMillis() <= timeMillis && timeMillis <= cpuValues[i + 1].getTimeMillis()) {
+                    before = cpuValues[i]
+                    break
+                }
+            }
+
+            for (i in cpuValues.size - 1 downTo 1) {
+                if (cpuValues[i].getTimeMillis() >= timeMillis && timeMillis >= cpuValues[i - 1].getTimeMillis()) {
+                    after = cpuValues[i]
+                    break
+                }
+            }
+            val _before: CpuMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
+            val _after: CpuMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
+            return Pair(_before, _after)
+        }
+
+        fun msecToNanoSec(msec: Long): Long {
+            return msec * MSEC_TO_NANOSEC_MULTIPLIER
+        }
     }
 
 

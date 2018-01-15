@@ -5,13 +5,13 @@ import com.artechra.apollo.types.ResourceUsageMetric
 
 class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : ResourceUsageManager {
 
-    override fun getResourceUsage(containerId: String, startTimeMillis: Long, endTimeMillis: Long): ResourceUsageMetric {
+    override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMetric {
 
-        val cpuUsage = getCpuUsage(containerId, startTimeMillis, endTimeMillis)
-        val memUsage = getMemUsage(containerId, startTimeMillis, endTimeMillis)
-        val diskIo   = getDiskIo(containerId, startTimeMillis, endTimeMillis)
-        val netIo    = getNetIo(containerId, startTimeMillis, endTimeMillis)
-        return ResourceUsageMetric(startTimeMillis, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
+        val cpuUsage = getCpuUsage(containerId, startTimeMsec, endTimeMsec)
+        val memUsage = getMemUsage(containerId, startTimeMsec, endTimeMsec)
+        val diskIo   = getDiskIo(containerId, startTimeMsec, endTimeMsec)
+        val netIo    = getNetIo(containerId, startTimeMsec, endTimeMsec)
+        return ResourceUsageMetric(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
     }
 
     private fun getCpuUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
