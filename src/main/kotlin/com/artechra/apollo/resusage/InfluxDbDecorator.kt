@@ -51,21 +51,23 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         this.influxdb.close()
     }
 
-    fun findBestValueForPointFromList(cpuValues: MutableList<CpuMeasurement>, pointTimeMillis: Long): Long {
-        if (cpuValues.size < 2) {
-            throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + cpuValues)
-        }
-
-        val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
-
-        val estimatedCpuTime = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
-                after.getTimeMillis(), after.getCpuUsage(),
-                pointTimeMillis)
-
-        return estimatedCpuTime
-    }
 
     companion object {
+
+        fun findBestValueForPointFromList(cpuValues: MutableList<CpuMeasurement>, pointTimeMillis: Long): Long {
+            if (cpuValues.size < 2) {
+                throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + cpuValues)
+            }
+
+            val (before, after) = findMeasurementsAroundPointInTime(cpuValues, pointTimeMillis)
+
+            val estimatedCpuTime = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getCpuUsage(),
+                    after.getTimeMillis(), after.getCpuUsage(),
+                    pointTimeMillis)
+
+            return estimatedCpuTime
+        }
+
 
         fun findMeasurementsAroundPointInTime(cpuValues: MutableList<CpuMeasurement>, timeMillis: Long): Pair<CpuMeasurement, CpuMeasurement> {
             var before: CpuMeasurement? = null

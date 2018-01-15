@@ -1,7 +1,6 @@
 package com.artechra.apollo.resusage
 
-import com.artechra.apollo.integration.TestConstants
-import com.artechra.apollo.resusage.CpuMeasurement
+import com.artechra.apollo.integration.IntegrationTestConstants
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -24,7 +23,7 @@ class TestInfluxDbDecorator {
     fun testThatFindingBestPointInListFindsMidValue() {
         // findMeasurementsAroundPointInTime
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), TestConstants.SPAN_START_TIME_MS)
+                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), IntegrationTestConstants.SPAN_START_TIME_MS)
         assertEquals(1515237432000, before.getTimeMillis())
         assertEquals(1515237442000, after.getTimeMillis())
     }

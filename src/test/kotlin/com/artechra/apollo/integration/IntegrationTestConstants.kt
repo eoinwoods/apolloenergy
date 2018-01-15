@@ -1,6 +1,6 @@
 package com.artechra.apollo.integration
 
-class TestConstants {
+class IntegrationTestConstants {
     companion object {
         val INFLUX_URL = "http://localhost:8086"
         val DB_NAME    = "telegraf"

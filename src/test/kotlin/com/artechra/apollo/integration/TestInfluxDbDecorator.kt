@@ -11,12 +11,12 @@ import kotlin.test.assertEquals
 
 
 class TestInfluxDbDecorator {
-    private val DBURL = TestConstants.INFLUX_URL
-    private val DATABASE = TestConstants.DB_NAME
+    private val DBURL = IntegrationTestConstants.INFLUX_URL
+    private val DATABASE = IntegrationTestConstants.DB_NAME
 
-    private val CONTAINERID = TestConstants.CONTAINERID
-    private val SPAN_TIME_MS = TestConstants.SPAN_START_TIME_MS
-    private val TEST_SET     = TestConstants.TEST_SET_NAME
+    private val CONTAINERID = IntegrationTestConstants.CONTAINERID
+    private val SPAN_TIME_MS = IntegrationTestConstants.SPAN_START_TIME_MS
+    private val TEST_SET     = IntegrationTestConstants.TEST_SET_NAME
 
     private var influxdb: InfluxDbDecorator? = null
 
