@@ -19,6 +19,12 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
             "and time > %d - %s and time < %d + %s " +
             "order by time"
 
+    val MEM_QUERY_TEMPLATE = "select time, container_name, usage " +
+            "from docker_container_mem " +
+            "where container_id = '%s' " +
+            "and time > %d - %s and time < %d + %s " +
+            "order by time"
+
     init {
         if (dbUser != null && dbUser.length > 0) {
             influxdb = InfluxDBFactory.connect(dbUrl, dbUser, dbPassword)
@@ -45,6 +51,23 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java);
 
         return findBestValueForPointFromList(cpuList.toList(), timeMsec)
+    }
+
+    fun getBestMemMeasureForTime(containerId: String, timeMsec: Long): Long {
+        // select time, container_name, usage from docker_container_mem
+        // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
+        // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+        val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
+        val query = MEM_QUERY_TEMPLATE.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
+        println("Q: ${query}")
+        val memQuery = Query(query, dbName)
+        val result = influxdb.query(memQuery)
+
+        val resultMapper = InfluxDBResultMapper();
+        val memList = resultMapper.toPOJO(result, MemMeasurement::class.java);
+
+        return findBestValueForPointFromList(memList.toList(), timeMsec)
     }
 
     fun close() {

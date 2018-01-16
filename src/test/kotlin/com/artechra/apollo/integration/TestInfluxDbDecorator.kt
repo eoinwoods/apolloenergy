@@ -2,6 +2,7 @@ package com.artechra.apollo.integration
 
 import com.artechra.apollo.resusage.CpuMeasurement
 import com.artechra.apollo.resusage.InfluxDbDecorator
+import com.artechra.apollo.resusage.MemMeasurement
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import org.junit.After
@@ -51,11 +52,11 @@ class TestInfluxDbDecorator {
 
     @Test
     fun testThatCpuMeasurementMappingIsCorrect() {
-        val query = Query("SELECT time, container_name, usage_total FROM docker_container_cpu LIMIT 1", DATABASE)
+        val query = Query("SELECT time, container_name, usage_total FROM docker_container_cpu ORDER BY time LIMIT 1", DATABASE)
         val dbconn = getDbConn().getInfluxDbConnection()
         val result = dbconn?.query(query)
         val resultMapper = InfluxDBResultMapper()
-        val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java!!)
+        val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java)
         println(cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
@@ -64,9 +65,30 @@ class TestInfluxDbDecorator {
     }
 
     @Test
+    fun testThatMemMeasurementMappingIsCorrect() {
+        val query = Query("SELECT time, container_name, usage FROM docker_container_mem ORDER BY time LIMIT 1", DATABASE)
+        val dbconn = getDbConn().getInfluxDbConnection()
+        val result = dbconn?.query(query)
+        val resultMapper = InfluxDBResultMapper()
+        val memList = resultMapper.toPOJO(result, MemMeasurement::class.java)
+        assertEquals(1, memList.size)
+        println(memList[0])
+        assertEquals("cpuhog", memList[0].containerName)
+        assertEquals(441532416, memList[0].memUsage)
+        assertEquals(1515237202000, memList[0].timeMillis)
+    }
+
+    @Test
     fun testThatCpuUsageIsReturned() {
         val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINERID, SPAN_TIME_MS)
+        // Manually calculated value
         assertEquals(31029497377, cpuUsage)
     }
 
+    @Test
+    fun testThatMemUsageIsReturned() {
+        val memUsage = getDbConn().getBestMemMeasureForTime(CONTAINERID, SPAN_TIME_MS)
+        // Manually calculated value
+        assertEquals(1122997373, memUsage)
+    }
 }
