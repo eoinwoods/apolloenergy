@@ -20,12 +20,16 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         return endTimeEstimate - startTimeEstimate
     }
 
-    private fun getMemUsage(containerId: String, startTime: Long, endTime: Long) : Long {
-        return 0
+    private fun getMemUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
+        val startTimeEstimate = influxdb.getBestMemMeasureForTime(containerId, startTimeMsec) ;
+        val endTimeEstimate = influxdb.getBestMemMeasureForTime(containerId, endTimeMsec) ;
+        return endTimeEstimate - startTimeEstimate
     }
 
-    private fun getDiskIo(containerId: String, startTime: Long, endTime: Long) : Long {
-        return 0
+    private fun getDiskIo(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
+        val startTimeEstimate = influxdb.getBestDiskIoMeasureForTime(containerId, startTimeMsec) ;
+        val endTimeEstimate = influxdb.getBestDiskIoMeasureForTime(containerId, endTimeMsec) ;
+        return endTimeEstimate - startTimeEstimate
     }
 
     private fun getNetIo(containerId: String, startTime: Long, endTime: Long) : Long {
