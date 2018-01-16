@@ -26,6 +26,12 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
             "and time > %d - %s and time < %d + %s " +
             "order by time"
 
+    val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
+            "from docker_container_blkio " +
+            "where container_id = '%s' " +
+            "and time > %d - %s and time < %d + %s " +
+            "order by time"
+
     init {
         if (dbUser != null && dbUser.length > 0) {
             influxdb = InfluxDBFactory.connect(dbUrl, dbUser, dbPassword)
@@ -54,9 +60,19 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         return getBestMeasureForContainerAtTime(MEM_QUERY_TEMPLATE, MemMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
+    fun getBestDiskIoMeasureForTime(containerId: String, timeMsec: Long): Long {
+        // select time, container_name, io_service_bytes_recursive_total from docker_container_blkio
+        // where container_id = 'cd299a7d035895a05937c72ce127459d613ba028e2bb33218892cc3cd201301c'
+        // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+        return getBestMeasureForContainerAtTime(DISKIO_QUERY_TEMPLATE, DiskIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+    }
+
+
     private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
+        println(query)
         val dbQuery = Query(query, dbName)
         val result = influxdb.query(dbQuery)
 

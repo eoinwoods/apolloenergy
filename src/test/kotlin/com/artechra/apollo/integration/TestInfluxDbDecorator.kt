@@ -1,6 +1,7 @@
 package com.artechra.apollo.integration
 
 import com.artechra.apollo.resusage.CpuMeasurement
+import com.artechra.apollo.resusage.DiskIoMeasurement
 import com.artechra.apollo.resusage.InfluxDbDecorator
 import com.artechra.apollo.resusage.MemMeasurement
 import org.influxdb.dto.Query
@@ -15,7 +16,8 @@ class TestInfluxDbDecorator {
     private val DBURL = IntegrationTestConstants.INFLUX_URL
     private val DATABASE = IntegrationTestConstants.DB_NAME
 
-    private val CONTAINERID = IntegrationTestConstants.CONTAINERID
+    private val CONTAINERID = IntegrationTestConstants.CPUHOG_CONTAINER_ID
+    private val DISKIO_CONTAINER_ID = IntegrationTestConstants.INFLUXDB_CONTAINER_ID
     private val SPAN_TIME_MS = IntegrationTestConstants.SPAN_START_TIME_MS
     private val TEST_SET     = IntegrationTestConstants.TEST_SET_NAME
 
@@ -79,6 +81,20 @@ class TestInfluxDbDecorator {
     }
 
     @Test
+    fun testThatDiskIoMeasurementMappingIsCorrect() {
+        val query = Query("SELECT time, container_name, io_service_bytes_recursive_total FROM docker_container_blkio ORDER BY time LIMIT 1", DATABASE)
+        val dbconn = getDbConn().getInfluxDbConnection()
+        val result = dbconn?.query(query)
+        val resultMapper = InfluxDBResultMapper()
+        val diskIoList = resultMapper.toPOJO(result, DiskIoMeasurement::class.java)
+        assertEquals(1, diskIoList.size)
+        println(diskIoList[0])
+        assertEquals("influxdb", diskIoList[0].containerName)
+        assertEquals(8192, diskIoList[0].diskIoBytes)
+        assertEquals(1515237202000, diskIoList[0].timeMillis)
+    }
+
+    @Test
     fun testThatCpuUsageIsReturned() {
         val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINERID, SPAN_TIME_MS)
         // Manually calculated value
@@ -91,4 +107,12 @@ class TestInfluxDbDecorator {
         // Manually calculated value
         assertEquals(1122997373, memUsage)
     }
+
+    @Test
+    fun testThatDiskIoUsageIsReturned() {
+        val diskIoUsage = getDbConn().getBestDiskIoMeasureForTime(DISKIO_CONTAINER_ID, SPAN_TIME_MS)
+        // Manually calculated value
+        assertEquals(994554, diskIoUsage)
+    }
+
 }

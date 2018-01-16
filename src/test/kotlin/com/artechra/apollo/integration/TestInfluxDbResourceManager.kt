@@ -15,7 +15,7 @@ public class TestInfluxDbResourceManager {
 
     @Test
     fun testGetResourceUsageForDataSet3ReturnsValidValues() {
-        val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.CONTAINERID,
+        val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.CPUHOG_CONTAINER_ID,
                 IntegrationTestConstants.SPAN_START_TIME_MS, IntegrationTestConstants.SPAN_END_TIME_MS)
         println("RESUSAGE: ${resUsage}")
         assert(resUsage.usage.totalCpu > 0)
