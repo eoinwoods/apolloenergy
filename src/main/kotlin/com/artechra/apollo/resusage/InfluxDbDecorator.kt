@@ -5,6 +5,7 @@ import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
+import sun.plugin2.gluegen.runtime.CPU
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
 
@@ -38,36 +39,31 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
     }
 
     fun getBestCpuMeasureForTime(containerId: String, timeMsec: Long): Long {
-        //select time, container_name, usage_total from docker_container_cpu
+        // select time, container_name, usage_total from docker_container_cpu
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
-        val query = CPU_QUERY_TEMPLATE.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        val cpuQuery = Query(query, dbName)
-        val result = influxdb.query(cpuQuery)
-
-        val resultMapper = InfluxDBResultMapper();
-        val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java);
-
-        return findBestValueForPointFromList(cpuList.toList(), timeMsec)
+        return getBestMeasureForContainerAtTime(CPU_QUERY_TEMPLATE, CpuMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
     fun getBestMemMeasureForTime(containerId: String, timeMsec: Long): Long {
-        // select time, container_name, usage from docker_container_mem
+        // select time, container_name, usage_total from docker_container_mem
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
+        return getBestMeasureForContainerAtTime(MEM_QUERY_TEMPLATE, MemMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+    }
+
+    private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
-        val query = MEM_QUERY_TEMPLATE.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        println("Q: ${query}")
-        val memQuery = Query(query, dbName)
-        val result = influxdb.query(memQuery)
+        val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
+        val dbQuery = Query(query, dbName)
+        val result = influxdb.query(dbQuery)
 
         val resultMapper = InfluxDBResultMapper();
-        val memList = resultMapper.toPOJO(result, MemMeasurement::class.java);
+        val valueList = resultMapper.toPOJO(result, mappingClass);
 
-        return findBestValueForPointFromList(memList.toList(), timeMsec)
+        return findBestValueForPointFromList(valueList.toList(), timeMsec)
     }
 
     fun close() {
