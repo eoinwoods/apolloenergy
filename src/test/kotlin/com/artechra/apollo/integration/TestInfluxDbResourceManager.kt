@@ -15,13 +15,29 @@ public class TestInfluxDbResourceManager {
     }
 
     @Test
-    fun testGetResourceUsageForDataSet3ReturnsValidValues() {
+    fun testGetResourceUsageForCpuhogInDataSet3ReturnsValidValues() {
         val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.CPUHOG_CONTAINER_ID,
                 IntegrationTestConstants.SPAN_START_TIME_MS, IntegrationTestConstants.SPAN_END_TIME_MS)
         println("RESUSAGE: ${resUsage}")
         assertTrue(resUsage.usage.totalCpu > 0, "No CPU reported")
         assertTrue(resUsage.usage.totalMemory > 0, "No memory reported")
-        assertTrue(resUsage.usage.totalDiskIo > 0, "No Disk IO reported")
+        // This container has no disk io during the specified period (hence the test case)
+        assertTrue(resUsage.usage.totalDiskIo == 0L, "Unexpected Disk IO reported")
+        assertTrue(resUsage.usage.totalNetIo > 0, "No network IO reported")
 
     }
+
+    @Test
+    fun testGetResourceUsageForDatbaseInDataSet3ReturnsValidValues() {
+        val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.INFLUXDB_CONTAINER_ID,
+                IntegrationTestConstants.SPAN_START_TIME_MS, IntegrationTestConstants.SPAN_END_TIME_MS)
+        println("RESUSAGE: ${resUsage}")
+        assertTrue(resUsage.usage.totalCpu > 0, "No CPU reported")
+        assertTrue(resUsage.usage.totalMemory > 0, "No memory reported")
+        assertTrue(resUsage.usage.totalDiskIo > 0, "Unexpected Disk IO reported")
+        assertTrue(resUsage.usage.totalNetIo > 0, "No network IO reported")
+
+    }
+
+
 }

@@ -90,8 +90,16 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
     companion object {
 
         fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
+            // This state implies that we didn't get at least two rows back from the database
+            // meaning we've asked about a non-existent state (e.g. no such container) or
+            // we've asked for a measurement not associated with the container during the requested
+            // time (e.g. a container that didn't do disk IO during the period)
+            //
+            // This ambiguity means that we return 0 here, but at a higher level we need to check for
+            // situations with a series of 0 values as possible situations where an invalid query
+            // has been issued
             if (values.size < 2) {
-                throw IllegalStateException("Cannot find best value for list with less than 2 elements: " + values)
+                return 0
             }
 
             val (before, after) = findMeasurementsAroundPointInTime(values, pointTimeMillis)
