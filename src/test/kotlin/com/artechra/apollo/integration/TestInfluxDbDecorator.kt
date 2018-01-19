@@ -10,13 +10,13 @@ import kotlin.test.assertEquals
 
 
 class TestInfluxDbDecorator {
-    private val DBURL = IntegrationTestConstants.INFLUX_URL
+    private val DBURL    = IntegrationTestConstants.INFLUX_URL
     private val DATABASE = IntegrationTestConstants.DB_NAME
 
-    private val CONTAINERID = IntegrationTestConstants.CPUHOG_CONTAINER_ID
+    private val CONTAINER_ID        = IntegrationTestConstants.CPUHOG_CONTAINER_ID
     private val DISKIO_CONTAINER_ID = IntegrationTestConstants.INFLUXDB_CONTAINER_ID
-    private val SPAN_TIME_MS = IntegrationTestConstants.SPAN_START_TIME_MS
-    private val TEST_SET     = IntegrationTestConstants.TEST_SET_NAME
+    private val SPAN_TIME_MS        = IntegrationTestConstants.SPAN_START_TIME_MS
+    private val TEST_SET            = IntegrationTestConstants.TEST_SET_NAME
 
     private var influxdb: InfluxDbDecorator? = null
 
@@ -109,14 +109,14 @@ class TestInfluxDbDecorator {
 
     @Test
     fun testThatCpuUsageIsReturned() {
-        val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINERID, SPAN_TIME_MS)
+        val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
         assertEquals(31029497377, cpuUsage)
     }
 
     @Test
     fun testThatMemUsageIsReturned() {
-        val memUsage = getDbConn().getBestMemMeasureForTime(CONTAINERID, SPAN_TIME_MS)
+        val memUsage = getDbConn().getBestMemMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
         assertEquals(1122997373, memUsage)
     }
@@ -128,4 +128,10 @@ class TestInfluxDbDecorator {
         assertEquals(994554, diskIoUsage)
     }
 
+    @Test
+    fun testThatNetIoUsageIsReturned() {
+        val netIoUsage = getDbConn().getBestNetIoMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
+        // Manually calculated value
+        assertEquals(2888, netIoUsage)
+    }
 }
