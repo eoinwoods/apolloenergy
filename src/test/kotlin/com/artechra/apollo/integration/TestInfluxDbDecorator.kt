@@ -6,14 +6,17 @@ import org.influxdb.impl.InfluxDBResultMapper
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.util.logging.Logger
 import kotlin.test.assertEquals
 
 
 class TestInfluxDbDecorator {
+    val LOG = Logger.getLogger(this.javaClass.name)
+
     private val DBURL    = IntegrationTestConstants.INFLUX_URL
     private val DATABASE = IntegrationTestConstants.DB_NAME
 
-    private val CONTAINER_ID        = IntegrationTestConstants.CPUHOG_CONTAINER_ID
+    private val CONTAINER_ID        = IntegrationTestConstants.GATEWAY_CONTAINER_ID
     private val DISKIO_CONTAINER_ID = IntegrationTestConstants.INFLUXDB_CONTAINER_ID
     private val SPAN_TIME_MS        = IntegrationTestConstants.SPAN_START_TIME_MS
     private val TEST_SET            = IntegrationTestConstants.TEST_SET_NAME
@@ -56,7 +59,7 @@ class TestInfluxDbDecorator {
         val result = dbconn?.query(query)
         val resultMapper = InfluxDBResultMapper()
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java)
-        println(cpuList[0])
+        LOG.info("cpuList=" + cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
         assertEquals(2414055725, cpuList[0].cpuUsage)
@@ -71,7 +74,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val memList = resultMapper.toPOJO(result, MemMeasurement::class.java)
         assertEquals(1, memList.size)
-        println(memList[0])
+        LOG.info("memList: " + memList[0])
         assertEquals("cpuhog", memList[0].containerName)
         assertEquals(441532416, memList[0].memUsage)
         assertEquals(1515237202000, memList[0].timeMillis)
@@ -85,7 +88,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val diskIoList = resultMapper.toPOJO(result, DiskIoMeasurement::class.java)
         assertEquals(1, diskIoList.size)
-        println(diskIoList[0])
+        LOG.info("diskIoList=" + diskIoList[0])
         assertEquals("influxdb", diskIoList[0].containerName)
         assertEquals(8192, diskIoList[0].diskIoBytes)
         assertEquals(1515237202000, diskIoList[0].timeMillis)
@@ -100,7 +103,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val netIoList = resultMapper.toPOJO(result, NetIoMeasurement::class.java)
         assertEquals(1, netIoList.size)
-        println(netIoList[0])
+        LOG.info("netIoList=" + netIoList[0])
         assertEquals("cpuhog", netIoList[0].containerName)
         assertEquals(5229, netIoList[0].rxBytes)
         assertEquals(5654, netIoList[0].txBytes)

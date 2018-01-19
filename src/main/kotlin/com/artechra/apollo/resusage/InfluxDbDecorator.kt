@@ -5,9 +5,11 @@ import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
+import java.util.logging.Logger
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
 
+    val LOG = Logger.getLogger(this.javaClass.name)
 
     val influxdb: InfluxDB
 
@@ -84,7 +86,7 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
     private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        println(query)
+        LOG.info("Querying InfluxDB for ${mappingClass.name} via query ${query}")
         val dbQuery = Query(query, dbName)
         val result = influxdb.query(dbQuery)
 

@@ -16,7 +16,7 @@ public class TestInfluxDbResourceManager {
 
     @Test
     fun testGetResourceUsageForCpuhogInDataSet3ReturnsValidValues() {
-        val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.CPUHOG_CONTAINER_ID,
+        val resUsage = resUsageManager.getResourceUsage(IntegrationTestConstants.GATEWAY_CONTAINER_ID,
                 IntegrationTestConstants.SPAN_START_TIME_MS, IntegrationTestConstants.SPAN_END_TIME_MS)
         println("RESUSAGE: ${resUsage}")
         assertTrue(resUsage.usage.totalCpu > 0, "No CPU reported")
@@ -37,6 +37,14 @@ public class TestInfluxDbResourceManager {
         assertTrue(resUsage.usage.totalDiskIo > 0, "Unexpected Disk IO reported")
         assertTrue(resUsage.usage.totalNetIo > 0, "No network IO reported")
 
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testGetResourceUsageForNonExistentDataThrowsException() {
+        // Shove the interval back 10 minutes to go beyond the start of data set 3
+        resUsageManager.getResourceUsage(IntegrationTestConstants.GATEWAY_CONTAINER_ID,
+                IntegrationTestConstants.SPAN_START_TIME_MS - 600*1000,
+                 IntegrationTestConstants.SPAN_END_TIME_MS - 600*1000)
     }
 
 

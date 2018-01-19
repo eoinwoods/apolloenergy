@@ -11,6 +11,13 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         val memUsage = getMemUsage(containerId, startTimeMsec, endTimeMsec)
         val diskIo   = getDiskIo(containerId, startTimeMsec, endTimeMsec)
         val netIo    = getNetIo(containerId, startTimeMsec, endTimeMsec)
+        // This is a pragmatic decision.  In theory it is possible to query for a valid time interval
+        // and get zero back from all of the queries but in practice it seems to be very unlikely as
+        // generally no usage means no record is written.  Hence if everything is zero we've probably
+        // asked the wrong question (i.e. an invalid container/time combination)
+        if (cpuUsage == 0L && memUsage == 0L && diskIo == 0L && netIo == 0L) {
+            throw IllegalStateException("Found zero cpu, memory, diskio and netio for container ${containerId} between ${startTimeMsec} and ${endTimeMsec}")
+        }
         return ResourceUsageMetric(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
     }
 
@@ -32,7 +39,9 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         return endTimeEstimate - startTimeEstimate
     }
 
-    private fun getNetIo(containerId: String, startTime: Long, endTime: Long) : Long {
-        return 0
+    private fun getNetIo(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
+        val startTimeEstimate = influxdb.getBestNetIoMeasureForTime(containerId, startTimeMsec) ;
+        val endTimeEstimate = influxdb.getBestNetIoMeasureForTime(containerId, endTimeMsec) ;
+        return endTimeEstimate - startTimeEstimate
     }
 }
