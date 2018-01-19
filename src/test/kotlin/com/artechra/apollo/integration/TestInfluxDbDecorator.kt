@@ -1,9 +1,6 @@
 package com.artechra.apollo.integration
 
-import com.artechra.apollo.resusage.CpuMeasurement
-import com.artechra.apollo.resusage.DiskIoMeasurement
-import com.artechra.apollo.resusage.InfluxDbDecorator
-import com.artechra.apollo.resusage.MemMeasurement
+import com.artechra.apollo.resusage.*
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import org.junit.After
@@ -92,6 +89,22 @@ class TestInfluxDbDecorator {
         assertEquals("influxdb", diskIoList[0].containerName)
         assertEquals(8192, diskIoList[0].diskIoBytes)
         assertEquals(1515237202000, diskIoList[0].timeMillis)
+    }
+
+    @Test
+    fun testThatNetIoMeasurementMappingIsCorrect() {
+        val query = Query("SELECT time, container_name, rx_bytes, tx_bytes FROM docker_container_net " +
+                                    "WHERE time = 1515237462000000000 ORDER BY time LIMIT 1", DATABASE)
+        val dbconn = getDbConn().getInfluxDbConnection()
+        val result = dbconn?.query(query)
+        val resultMapper = InfluxDBResultMapper()
+        val netIoList = resultMapper.toPOJO(result, NetIoMeasurement::class.java)
+        assertEquals(1, netIoList.size)
+        println(netIoList[0])
+        assertEquals("cpuhog", netIoList[0].containerName)
+        assertEquals(5229, netIoList[0].rxBytes)
+        assertEquals(5654, netIoList[0].txBytes)
+        assertEquals(1515237462000, netIoList[0].timeMillis)
     }
 
     @Test

@@ -5,7 +5,6 @@ import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
-import sun.plugin2.gluegen.runtime.CPU
 
 class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
 
@@ -28,6 +27,12 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
 
     val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
             "from docker_container_blkio " +
+            "where container_id = '%s' " +
+            "and time > %d - %s and time < %d + %s " +
+            "order by time"
+
+    val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
+            "from docker_container_net " +
             "where container_id = '%s' " +
             "and time > %d - %s and time < %d + %s " +
             "order by time"
@@ -68,6 +73,13 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
         return getBestMeasureForContainerAtTime(DISKIO_QUERY_TEMPLATE, DiskIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
+    fun getBestNetIoMeasureForTime(containerId: String, timeMsec: Long): Long {
+        // select time, rx_bytes, tx_bytes from docker_container_net
+        // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
+        // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
+
+        return getBestMeasureForContainerAtTime(NETIO_QUERY_TEMPLATE, NetIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+    }
 
     private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
