@@ -7,48 +7,22 @@ import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import java.util.logging.Logger
 
-class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: String? = null, val dbPassword: String? = null) {
+class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, private val dbUser: String? = null, private val dbPassword: String? = null) {
 
-    val LOG = Logger.getLogger(this.javaClass.name)
+    private val _log = Logger.getLogger(this.javaClass.name)
 
-    val influxdb: InfluxDB
-
-    val QUERY_WINDOW = "20s"
-    val CPU_QUERY_TEMPLATE = "select time, container_name, usage_total " +
-            "from docker_container_cpu " +
-            "where cpu = 'cpu-total' " +
-            "and container_id = '%s' " +
-            "and time > %d - %s and time < %d + %s " +
-            "order by time"
-
-    val MEM_QUERY_TEMPLATE = "select time, container_name, usage " +
-            "from docker_container_mem " +
-            "where container_id = '%s' " +
-            "and time > %d - %s and time < %d + %s " +
-            "order by time"
-
-    val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
-            "from docker_container_blkio " +
-            "where container_id = '%s' " +
-            "and time > %d - %s and time < %d + %s " +
-            "order by time"
-
-    val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
-            "from docker_container_net " +
-            "where container_id = '%s' " +
-            "and time > %d - %s and time < %d + %s " +
-            "order by time"
+    private val _influxdb: InfluxDB
 
     init {
-        if (dbUser != null && dbUser.length > 0) {
-            influxdb = InfluxDBFactory.connect(dbUrl, dbUser, dbPassword)
+        if (dbUser != null && dbUser.isEmpty()) {
+            _influxdb = InfluxDBFactory.connect(dbUrl, dbUser, dbPassword)
         } else {
-            influxdb = InfluxDBFactory.connect(dbUrl)
+            _influxdb = InfluxDBFactory.connect(dbUrl)
         }
     }
 
     fun getInfluxDbConnection(): InfluxDB {
-        return influxdb
+        return _influxdb
     }
 
     fun getBestCpuMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -86,22 +60,49 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
     private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        LOG.info("Querying InfluxDB for ${mappingClass.name} via query ${query}")
+        _log.info("Querying InfluxDB for ${mappingClass.name} via query $query")
         val dbQuery = Query(query, dbName)
-        val result = influxdb.query(dbQuery)
+        val result = _influxdb.query(dbQuery)
 
-        val resultMapper = InfluxDBResultMapper();
-        val valueList = resultMapper.toPOJO(result, mappingClass);
+        val resultMapper = InfluxDBResultMapper()
+        val valueList = resultMapper.toPOJO(result, mappingClass)
 
         return findBestValueForPointFromList(valueList.toList(), timeMsec)
     }
 
     fun close() {
-        this.influxdb.close()
+        this._influxdb.close()
     }
 
 
     companion object {
+
+        val QUERY_WINDOW = "20s"
+
+        val CPU_QUERY_TEMPLATE = "select time, container_name, usage_total " +
+                "from docker_container_cpu " +
+                "where cpu = 'cpu-total' " +
+                "and container_id = '%s' " +
+                "and time > %d - %s and time < %d + %s " +
+                "order by time"
+
+        val MEM_QUERY_TEMPLATE = "select time, container_name, usage " +
+                "from docker_container_mem " +
+                "where container_id = '%s' " +
+                "and time > %d - %s and time < %d + %s " +
+                "order by time"
+
+        val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
+                "from docker_container_blkio " +
+                "where container_id = '%s' " +
+                "and time > %d - %s and time < %d + %s " +
+                "order by time"
+
+        val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
+                "from docker_container_net " +
+                "where container_id = '%s' " +
+                "and time > %d - %s and time < %d + %s " +
+                "order by time"
 
         fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
             // This state implies that we didn't get at least two rows back from the database
@@ -118,11 +119,9 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
 
             val (before, after) = findMeasurementsAroundPointInTime(values, pointTimeMillis)
 
-            val bestValueForPoint = Util.interpolateBetweenPoints(before.getTimeMillis(), before.getMeasurementValue(),
-                    after.getTimeMillis(), after.getMeasurementValue(),
+            return Util.interpolateBetweenPoints(before.timeMillis, before.measurementValue,
+                    after.timeMillis, after.measurementValue,
                     pointTimeMillis)
-
-            return bestValueForPoint
         }
 
 
@@ -131,21 +130,21 @@ class InfluxDbDecorator(val dbUrl: String, val dbName: String, val dbUser: Strin
             var after: GenericMeasurement? = null
 
             for (i in 0..values.size - 2) {
-                if (values[i].getTimeMillis() <= timeMillis && timeMillis <= values[i + 1].getTimeMillis()) {
+                if (values[i].timeMillis <= timeMillis && timeMillis <= values[i + 1].timeMillis) {
                     before = values[i]
                     break
                 }
             }
 
             for (i in values.size - 1 downTo 1) {
-                if (values[i].getTimeMillis() >= timeMillis && timeMillis >= values[i - 1].getTimeMillis()) {
+                if (values[i].timeMillis >= timeMillis && timeMillis >= values[i - 1].timeMillis) {
                     after = values[i]
                     break
                 }
             }
-            val _before: GenericMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
-            val _after: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
-            return Pair(_before, _after)
+            val beforeReturn: GenericMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
+            val afterReturn: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
+            return Pair(beforeReturn, afterReturn)
         }
     }
 }
