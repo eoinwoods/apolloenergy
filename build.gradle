@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.0'
+    ext.kotlin_version = '1.2.20'
     repositories {
         mavenCentral()
     }
@@ -7,6 +7,10 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+plugins {
+    id 'org.springframework.boot' version '1.5.9.RELEASE'
+}
+
 apply plugin: 'kotlin'
 
 // I only have a few Java source files so I'm mixing them into the Kotlin
@@ -33,7 +37,9 @@ repositories {
 }
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile 'org.influxdb:influxdb-java:2.8'
+    compile 'mysql:mysql-connector-java:6.0.6'
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     compile 'com.beust:klaxon:2.0.11'
