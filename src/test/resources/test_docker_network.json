@@ -1,0 +1,157 @@
+[
+    {
+        "Name": "bridge",
+        "Id": "5037bbc29837ccf15d882b36e0f3835ab7ca1dba158125a54e92dc382fb40c50",
+        "Created": "2018-01-05T21:06:52.935450146Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    },
+    {
+        "Name": "etc_default",
+        "Id": "054c7849e2ea5116e38f0de3a1198fc9bd5ad3333507d22a3533e044ecfbe9db",
+        "Created": "2018-01-06T11:13:10.340815115Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": true,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228": {
+                "Name": "gateway",
+                "EndpointID": "3ae4fce91b52995461b4b792059c8930647b3deed78f5b794ce2f0d71e0e4be9",
+                "MacAddress": "02:42:ac:12:00:07",
+                "IPv4Address": "172.18.0.7/16",
+                "IPv6Address": ""
+            },
+            "a34488c68b81c5b07fcdf81d6a691b4b462018b62437ab87386b297a95e77527": {
+                "Name": "influxdb",
+                "EndpointID": "2760834b4376bd6ce1bf15e47e8537ea5f71470130fcd9fa1b1f2713b0a6054f",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "cd299a7d035895a05937c72ce127459d613ba028e2bb33218892cc3cd201301c": {
+                "Name": "zipkin",
+                "EndpointID": "892cd021957c9f5c0253c29b12787a9764764a1377dcd6a8760b31261a8de818",
+                "MacAddress": "02:42:ac:12:00:04",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "d98e1fd747e3476afaecfc022e0f32957549853ff2d1e530831ebf0283f6f7ed": {
+                "Name": "dependencies",
+                "EndpointID": "ee8f9390c724ae899f33f77cc8351600bfbb5d2a79613ffb7abd8b6ba2c29d86",
+                "MacAddress": "02:42:ac:12:00:05",
+                "IPv4Address": "172.18.0.5/16",
+                "IPv6Address": ""
+            },
+            "da18395d6f088729e1a5d0b9dc0c610d2a27e1298f2fa550b903c352a0acccbc": {
+                "Name": "mysql",
+                "EndpointID": "b736d83ee5908d2875f7a8f2044e242f40f3100b24958f5e53cc3f9701add9a9",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            },
+            "ddfb6dde9f71b17dff3acda7a4f813dbf9ae3a536456765f7eca9b1d96a845fb": {
+                "Name": "cpuhog",
+                "EndpointID": "4b766d03ae47d71a53c53d5540bd7ec23ea8ba8544f886ba2d7c9c32dd774882",
+                "MacAddress": "02:42:ac:12:00:06",
+                "IPv4Address": "172.18.0.6/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {
+            "com.docker.compose.network": "default",
+            "com.docker.compose.project": "etc"
+        }
+    },
+    {
+        "Name": "host",
+        "Id": "11cb6bb775c47274ac9dbfab6bae9dded079022f02747afc1daea9a9016b3249",
+        "Created": "2017-12-27T16:36:15.512559952Z",
+        "Scope": "local",
+        "Driver": "host",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": []
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    },
+    {
+        "Name": "none",
+        "Id": "e86fe81a19701844c036854b0f7f3cc798839402c959a00993a59b2b59ef264a",
+        "Created": "2017-12-27T16:36:15.500107616Z",
+        "Scope": "local",
+        "Driver": "null",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": []
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
