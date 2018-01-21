@@ -16,9 +16,18 @@ class TestMySqlZipkinTraceManager {
     fun testThatSetOfTracesIsReturned() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val traces = traceManager.getRootSpans()
+        val traces = traceManager.getTraces()
         assertThat(traces.size, equalTo(3))
-        println(traces)
+    }
+
+    @Test
+    fun testThatCorrectNumberOfSpansContainedInMultiSpanTrace() {
+        val jdbcTemplate = JdbcTemplate(getDataSource())
+        val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
+        val threeSpanTraceId = "C925BFAC9556A68A"
+        val trace = traceManager.getTrace(threeSpanTraceId)
+        assertThat(trace.root.spanId, equalTo(threeSpanTraceId))
+
     }
 
     private fun getDataSource(): DataSource {
