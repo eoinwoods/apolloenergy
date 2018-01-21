@@ -2,7 +2,6 @@ package com.artechra.apollo.calculator
 
 import com.artechra.apollo.netinfo.NetInfo
 import com.artechra.apollo.resusage.ResourceUsageManager
-import com.artechra.apollo.types.ArchitecturalDescription
 import com.artechra.apollo.types.ResourceUsage
 import com.artechra.apollo.types.Trace
 

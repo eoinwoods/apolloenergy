@@ -5,26 +5,26 @@ import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class TestTrace {
-    val root  = Span(1, "192.168.1.1:1000", 0, 500)
-    val span1 = Span(100, "192.168.1.2:2000", 100, 200, root)
-    val span2 = Span(200, "192.168.1.3:3000", 150, 300, root)
+    val root  = Span("54C92796854B15C8", "192.168.1.1", 0, 500)
+    val span1 = Span("C925BFAC9556A68A", "192.168.1.2", 100, 200, root)
+    val span2 = Span("F59EAF6D7B9C5C49", "192.168.1.3", 150, 300, root)
 
 
     // perhaps this should be in a TestSpan test, but Span is really part of Trace
     // so testing it here seems ok
     @Test(expected = IllegalArgumentException::class)
     fun spanWithStartAfterEndShouldBeRejected() {
-        Span(100, "s100", 100, 99)
+        Span("C925BFAC9556A68A", "s100", 100, 99)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun spanWithIllegalNetworkAddressFormatShouldBeRejected() {
-        Span(100, "192.168.1.1", 100, 200)
+        Span("C925BFAC9556A68A", "192.168.1.1/16", 100, 200)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun spanWithEmptyNetworkAddressShouldBeRejected() {
-        Span(100, "", 100, 200)
+        Span("C925BFAC9556A68A", "", 100, 200)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -56,24 +56,24 @@ class TestTrace {
     @Test(expected = IllegalArgumentException::class)
     fun traceWithTwoRootsShouldBeRejected() {
         Trace(setOf(
-                Span(100, "192.168.1.1:1000", 10, 20),
-                Span(200, "10.10.10.1:100", 10, 20)
+                Span("fd45", "192.168.1.1", 10, 20),
+                Span("F59EAF6D7B9C5C49", "10.10.10.1", 10, 20)
         ))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun childrenBeforeRootSpanTimesCauseException() {
-        val root  = Span(1, "1.1.1.1:1", 100, 500)
-        val span1 = Span(100, "10.10.10.1:100", 100, 200, root)
-        val span2 = Span(200, "192.168.1.1:1456", 99, 300, root)
+        val root  = Span("C925BFAC9556A68A", "1.1.1.1", 100, 500)
+        val span1 = Span("cf56342a", "10.10.10.1", 100, 200, root)
+        val span2 = Span("c45e6a37", "192.168.1.1", 99, 300, root)
         Trace(setOf(root, span1, span2))
     }
 
     @Test
     fun traceStartTimeAndEndTimeMatchRoot() {
-        val root  = Span(1, "1.1.1.1:1", 100, 500)
-        val span1 = Span(100, "10.10.10.1:100", 100, 200, root)
-        val span2 = Span(200, "192.168.1.1:1456", 110, 300, root)
+        val root  = Span("F59EAF6D7B9C5C49", "1.1.1.1", 100, 500)
+        val span1 = Span("cf56342f", "10.10.10.1", 100, 200, root)
+        val span2 = Span("cf56342a", "192.168.1.1", 110, 300, root)
         val t = Trace(setOf(root, span1, span2))
         assertTrue("wrong Trace start or end times", t.getStartTime() == 100L && t.getEndTime() == 500L)
     }

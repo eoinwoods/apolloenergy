@@ -1,6 +1,9 @@
 package com.artechra.apollo.integration
 
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThat
 import org.junit.Test
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
@@ -14,6 +17,7 @@ class TestMySqlZipkinTraceManager {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
         val traces = traceManager.getRootSpans()
+        assertThat(traces.size, equalTo(3))
         println(traces)
     }
 

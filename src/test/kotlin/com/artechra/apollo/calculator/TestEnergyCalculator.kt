@@ -16,10 +16,10 @@ class TestEnergyCalculator {
         val ec = EnergyCalculatorImpl(archDesc = ArchitectureManagerDefaultImpl(),
                                       netInfo = NetInfoDefaultImplementation(),
                                       resUsageManager = ResourceUsageManagerDefaultImplementation(),
-                                      traceManager = StubTraceManager(listOf(Trace(setOf(Span(100, "192.168.1.1:0", 10000, 20000))))))
+                                      traceManager = StubTraceManager(listOf(Trace(setOf(Span("54C92796854B15C8", "192.168.1.1", 10000, 20000))))))
         val result = ec.calculateEnergyForRequests()
         assertEquals(1, result.size)
-        assertEquals("192.168.1.1:0", result.keys.toTypedArray()[0])
-        assertEquals(-1, result["192.168.1.1:0"])
+        assertEquals("192.168.1.1", result.keys.toTypedArray()[0])
+        assertEquals(-1, result["192.168.1.1"])
     }
 }

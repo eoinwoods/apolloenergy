@@ -7,22 +7,28 @@ class TestSpan {
 
     @Test
     fun testMaximalIpAddressIsAccepted() {
-        Span(1, "255.255.255.255:100", 100, 200)
+        Span("3D5775034F9411B8", "255.255.255.255", 100, 200)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testMissingPortIsRejected() {
-        Span(1, "255.255.255.255", 100, 200)
+    fun testUnexpectedPortIsRejected() {
+        Span("3D5775034F9411B8", "255.255.255.255:123", 100, 200)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testMissingPortWithSeparatorIsRejected() {
-        Span(1, "255.255.255.255:", 100, 200)
+    @Test
+    fun testThatDecimalSpanIdIsRejected() {
+        Span("100242", "255.123.32.1", 1000, 50654)
+    }
+
+    @Test
+    fun testThatLowerAndUpperCaseSpanIdIsAccepted() {
+        Span("F59EAF6D7B9C5C49", "255.255.255.255", 100, 200)
+        Span("f59eaf6d7b9c5c49", "255.255.255.255", 100, 200)
     }
 
     @Test
     fun testMinimalIpAddressIsAccepted() {
-        Span(1, "1.1.1.1:0", 100, 200)
+        Span("3D5775034F9411B8", "1.1.1.1", 100, 200)
     }
 
 }
