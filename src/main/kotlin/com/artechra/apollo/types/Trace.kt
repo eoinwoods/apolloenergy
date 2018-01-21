@@ -24,7 +24,7 @@ data class Trace(val spans : Set<Span>) {
 
     private fun findRoot(spans : Set<Span>) : Span? {
         for (s in spans) {
-            if (s.parent == null)
+            if (s.parentId == null)
                 return s
         }
         return null

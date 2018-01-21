@@ -5,7 +5,7 @@ class IntegrationTestConstants {
         val INFLUX_URL = "http://localhost:8086"
         val DB_NAME    = "telegraf"
 
-        val MYSQL_DRIVER = "com.mysql.jdbc.Driver"
+        val MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver"
         val MYSQL_DB   = "zipkin"
         val MYSQL_URL  = "jdbc:mysql://localhost" + "/" + MYSQL_DB
         val MYSQL_USER = "zipkin"
