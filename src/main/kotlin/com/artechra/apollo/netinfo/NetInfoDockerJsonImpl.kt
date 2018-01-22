@@ -3,6 +3,7 @@ package com.artechra.apollo.netinfo
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
+import java.io.File
 
 class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
     private val containerToAddress: MutableMap<String, String> = HashMap<String, String>()
@@ -10,10 +11,12 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
     private val containerIdToName: MutableMap<String, String> = HashMap<String, String>()
 
     init {
-        val jsonDataLocation = ClassLoader.getSystemResource(netInfoFileName)
-        val jsonData = Parser().parse(jsonDataLocation.file) as? JsonArray<JsonObject>
-        jsonData ?: throw IllegalStateException("Could not convert parser output to JsonArray")
+        if (!File(netInfoFileName).canRead()) {
+            throw IllegalArgumentException("Could not open file ${netInfoFileName}")
+        }
 
+        val jsonData = Parser().parse(netInfoFileName) as? JsonArray<JsonObject>
+        jsonData ?: throw IllegalStateException("Could not convert parser output to JsonArray")
         jsonData.forEach {
             val containers = it["Containers"] as JsonObject
             containers.forEach {
