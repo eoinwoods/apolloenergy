@@ -2,16 +2,18 @@ buildscript {
     ext.kotlin_version = '1.2.20'
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+
     }
 }
-plugins {
-    id 'org.springframework.boot' version '1.5.9.RELEASE'
-}
-
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 apply plugin: 'kotlin'
+
 
 // I only have a few Java source files so I'm mixing them into the Kotlin
 // source directories, which is supported, but the sourceSets needs set up
@@ -31,13 +33,21 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.artechra.apollo.ApplicationKt'
+    }
+}
+
 repositories {
     mavenCentral()
     jcenter()
 }
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile("org.springframework.boot:spring-boot-starter-jdbc")
+    compile 'org.springframework:spring-context:5.0.3.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.0.3.RELEASE'
     compile 'org.influxdb:influxdb-java:2.8'
     compile 'mysql:mysql-connector-java:6.0.6'
     testCompile "org.jetbrains.kotlin:kotlin-test"
