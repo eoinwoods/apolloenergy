@@ -19,7 +19,7 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
                     containers.get(span.networkAddress) ?:
                             throw IllegalStateException("No container found for ipAddr " + span.networkAddress + " in span " + span.spanId)
             val resourceMetrics =
-                    resourceUsageMgr.getResourceUsage(containerId, span.startTime, span.endTime)
+                    resourceUsageMgr.getResourceUsage(containerId, span.startTimeMsec, span.endTimeMsec)
             totalCpuTicks    += resourceMetrics.usage.totalCpu
             totalMemoryMb    += resourceMetrics.usage.totalMemory
             totalDiskIoBytes += resourceMetrics.usage.totalDiskIo

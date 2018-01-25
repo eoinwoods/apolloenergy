@@ -36,7 +36,7 @@ class TestMySqlZipkinTraceManager {
         val trace = traceManager.getTrace(threeSpanTraceId)
         val exampleSpans = trace.spans.asIterable().filter { it.parentId != null}
         val exampleSpan = exampleSpans[0]
-        assertTrue(exampleSpan.startTime < exampleSpan.endTime)
+        assertTrue(exampleSpan.startTimeMsec < exampleSpan.endTimeMsec)
         assertNotNull(exampleSpan.parentId)
         assertNotNull(exampleSpan.networkAddress)
         assertTrue(exampleSpan.networkAddress.matches(Regex("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")))
@@ -55,11 +55,11 @@ class TestMySqlZipkinTraceManager {
         var earliestStartMsec : Long = Long.MAX_VALUE
         var latestEndMsec : Long = 0
         for (s in trace.spans) {
-            if (s.startTime < earliestStartMsec) earliestStartMsec = s.startTime
-            if (s.endTime > latestEndMsec) latestEndMsec = s.endTime
+            if (s.startTimeMsec < earliestStartMsec) earliestStartMsec = s.startTimeMsec
+            if (s.endTimeMsec > latestEndMsec) latestEndMsec = s.endTimeMsec
         }
-        assertThat(trace.root.startTime, equalTo(earliestStartMsec))
-        assertThat(trace.root.endTime, equalTo(latestEndMsec))
+        assertThat(trace.root.startTimeMsec, equalTo(earliestStartMsec))
+        assertThat(trace.root.endTimeMsec, equalTo(latestEndMsec))
     }
 
     private fun getDataSource(): DataSource {

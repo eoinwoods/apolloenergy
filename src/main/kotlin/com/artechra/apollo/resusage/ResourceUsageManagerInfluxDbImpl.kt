@@ -2,11 +2,19 @@ package com.artechra.apollo.resusage
 
 import com.artechra.apollo.types.ResourceUsage
 import com.artechra.apollo.types.ResourceUsageMetric
+import org.apache.logging.log4j.LogManager
 
 class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : ResourceUsageManager {
 
+    val _log = LogManager.getLogger(this::class.qualifiedName)
+
+    init {
+        println("CTOR: "  + this::class.qualifiedName)
+    }
+
     override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMetric {
 
+        _log.info("Get resource usage for container ${containerId} from ${startTimeMsec} to ${endTimeMsec}")
         val cpuUsage = getCpuUsage(containerId, startTimeMsec, endTimeMsec)
         val memUsage = getMemUsage(containerId, startTimeMsec, endTimeMsec)
         val diskIo   = getDiskIo(containerId, startTimeMsec, endTimeMsec)

@@ -2,6 +2,7 @@ package com.artechra.apollo.traces
 
 import com.artechra.apollo.types.Span
 import com.artechra.apollo.types.Trace
+import com.artechra.apollo.types.Util
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -47,9 +48,11 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
     }
 
     fun createSpanFromResultSetItem(rs : ResultSet) : Span {
+        val startTimeMsec = Util.usecToMsec(rs.getLong("start_time_usec"))
+        val endTimeMsec = Util.usecToMsec(rs.getLong("end_time_usec"))
         val span = Span(rs.getString("trace_id"), rs.getString("span_id"),
                 rs.getString("ipv4_address"),
-                rs.getLong("start_time_msec"), rs.getLong("end_time_msec"),
+                startTimeMsec, endTimeMsec,
                 rs.getString("parent_id"))
         return span
     }
@@ -60,7 +63,7 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
 
         val SPANS_FOR_TRACE_QUERY_TEMPLATE =
                 "SELECT hex(s.trace_id) as trace_id, hex(s.id) as span_id, hex(s.parent_id) as parent_id, " +
-                        "start_ts as start_time_msec, start_ts+duration as end_time_msec, " +
+                        "start_ts as start_time_usec, start_ts+duration as end_time_usec, " +
                         "inet_ntoa(endpoint_ipv4 & conv('ffffffff', 16, 10)) as ipv4_address, endpoint_port " +
                         "FROM zipkin_spans s, zipkin_annotations a " +
                         "WHERE HEX(s.trace_id) = upper('%s') " +

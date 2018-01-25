@@ -5,6 +5,11 @@ import kotlin.math.roundToLong
 class Util {
     companion object {
         val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
+        val MSEC_TO_USEC_MULTIPLIER = 1000L
+
+        fun usecToMsec(usec : Long) : Long {
+            return usec / MSEC_TO_USEC_MULTIPLIER
+        }
 
         fun msecToNanoSec(msec: Long): Long {
             return msec * MSEC_TO_NANOSEC_MULTIPLIER
