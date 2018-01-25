@@ -1,15 +1,15 @@
 package com.artechra.apollo.resusage
 
 import com.artechra.apollo.types.Util
+import org.apache.logging.log4j.LogManager
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
-import java.util.logging.Logger
 
 class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, private val dbUser: String? = null, private val dbPassword: String? = null) {
 
-    private val _log = Logger.getLogger(this.javaClass.name)
+    private val _log = LogManager.getLogger(this.javaClass.name)
 
     private val _influxdb: InfluxDB
 

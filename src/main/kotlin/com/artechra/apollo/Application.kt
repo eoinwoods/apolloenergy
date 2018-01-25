@@ -7,6 +7,7 @@ import com.artechra.apollo.netinfo.NetInfoDockerJsonImpl
 import com.artechra.apollo.resusage.InfluxDbDecorator
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
+import org.apache.logging.log4j.LogManager
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import java.io.FileInputStream
@@ -73,6 +74,9 @@ class Application {
 
 fun main(args: Array<String>) {
 
+    val _log = LogManager.getLogger(Application::class.java.name)
+
+
     if (args.size != 1) {
         println("USAGE: com.artechra.apollo.Application config_props_file")
         exitProcess(1)
@@ -80,7 +84,7 @@ fun main(args: Array<String>) {
     val propsFileName = args[0]
     val app = Application()
     val config = app.loadConfiguration(propsFileName)
-    println("CONFIG: " + config)
+    _log.info("CONFIG: " + config)
     val calc = app.assemble(config)
     calc.calculateEnergyForRequests()
 }
