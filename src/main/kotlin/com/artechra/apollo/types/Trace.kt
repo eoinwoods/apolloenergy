@@ -15,11 +15,11 @@ data class Trace(val spans : Set<Span>) {
     }
 
     fun getStartTime() : Long {
-        return root.startTime
+        return root.startTimeMsec
     }
 
     fun getEndTime() : Long {
-        return root.endTime
+        return root.endTimeMsec
     }
 
     private fun findRoot(spans : Set<Span>) : Span? {
@@ -35,10 +35,10 @@ data class Trace(val spans : Set<Span>) {
         var maxTime : Long = 0
 
         for (s in spans) {
-            minTime = if (minTime < s.startTime) minTime else s.startTime
-            maxTime = if (maxTime > s.endTime)   maxTime else s.endTime
+            minTime = if (minTime < s.startTimeMsec) minTime else s.startTimeMsec
+            maxTime = if (maxTime > s.endTimeMsec)   maxTime else s.endTimeMsec
         }
         val root = findRoot(spans) ?: throw IllegalStateException("Could not find root in Span set: " + spans)
-        return root.startTime <= minTime && root.endTime >= maxTime
+        return root.startTimeMsec <= minTime && root.endTimeMsec >= maxTime
     }
 }
