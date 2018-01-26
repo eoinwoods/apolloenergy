@@ -2,5 +2,5 @@ package com.artechra.apollo.calculator
 
 interface EnergyCalculator {
 
-    fun calculateEnergyForRequests() : Map<String,Long>
+    fun calculateEnergyForRequests() : Map<String,String>
 }

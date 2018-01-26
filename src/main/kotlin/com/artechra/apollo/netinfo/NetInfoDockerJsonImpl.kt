@@ -15,7 +15,7 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
             throw IllegalArgumentException("Could not open file ${netInfoFileName}")
         }
 
-        val jsonData = Parser().parse(netInfoFileName) as? JsonArray<JsonObject>
+        val jsonData: JsonArray<JsonObject>? = Parser().parse(netInfoFileName) as? JsonArray<JsonObject>
         jsonData ?: throw IllegalStateException("Could not convert parser output to JsonArray")
         jsonData.forEach {
             val containers = it["Containers"] as JsonObject

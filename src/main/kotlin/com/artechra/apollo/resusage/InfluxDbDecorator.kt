@@ -60,7 +60,7 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
     private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        _log.info("Querying InfluxDB for ${mappingClass.name} via query $query")
+        _log.debug("Querying InfluxDB for ${mappingClass.name} via query $query")
         val dbQuery = Query(query, dbName)
         val result = _influxdb.query(dbQuery)
 

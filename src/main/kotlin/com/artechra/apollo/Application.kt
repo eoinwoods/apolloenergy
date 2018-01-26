@@ -86,5 +86,6 @@ fun main(args: Array<String>) {
     val config = app.loadConfiguration(propsFileName)
     _log.info("CONFIG: " + config)
     val calc = app.assemble(config)
-    calc.calculateEnergyForRequests()
+    val energyUsage = calc.calculateEnergyForRequests()
+    println("Energy usage for traces: " + energyUsage)
 }
