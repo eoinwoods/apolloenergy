@@ -34,6 +34,6 @@ class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
     fun resourceUsageToEnergy(cpuTicks : Long, memoryMb : Long, diskIoBytes : Long, netIoBytes : Long) : String {
         // Call the energy model eventually
         _log.info("resourceUsageToEnergy($cpuTicks, $memoryMb, $diskIoBytes, $netIoBytes)")
-        return "[$cpuTicks, $memoryMb, $diskIoBytes, $netIoBytes]"
+        return "[cpuTicks=$cpuTicks, memoryMbytes=$memoryMb, diskIoBytes=$diskIoBytes, netIoBytes=$netIoBytes]"
     }
 }
