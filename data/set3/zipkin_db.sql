@@ -105,6 +105,12 @@ CREATE TABLE `zipkin_spans` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Adding row to indicate test data set identity
+--
+INSERT INTO zipkin_spans(trace_id, trace_id_high, id, name, parent_id)
+VALUES(1, 1, 1, 'set3', 1) ;
+
+--
 -- Dumping data for table `zipkin_spans`
 --
 
