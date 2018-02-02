@@ -108,7 +108,7 @@ CREATE TABLE `zipkin_spans` (
 -- Adding row to indicate test data set identity
 --
 INSERT INTO zipkin_spans(trace_id, trace_id_high, id, name, parent_id)
-VALUES(1, 1, 1, 'set4', 1) ;
+VALUES(1, 1, 1, 'apollo-set4', 1) ;
 
 --
 -- Dumping data for table `zipkin_spans`
