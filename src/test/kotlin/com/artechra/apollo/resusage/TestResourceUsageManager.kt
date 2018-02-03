@@ -1,8 +1,6 @@
 package com.artechra.apollo.resusage
 
-import com.artechra.apollo.types.ElementIdentifiers
 import org.junit.Test
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TestResourceUsageManager {
