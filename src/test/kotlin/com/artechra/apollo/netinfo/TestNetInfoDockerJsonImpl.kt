@@ -1,15 +1,12 @@
 package com.artechra.apollo.netinfo
 
 import com.artechra.apollo.integration.IntegrationTestConstants
+import com.artechra.apollo.util.TestUtil.Companion.getDataFilePath
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
 
 class TestNetInfoDockerJsonImpl {
-
-    fun getDataFilePath(fileName : String) : String {
-        return ClassLoader.getSystemResource(fileName).path
-    }
 
     @Test
     fun testInitialisationLoadsData() {
