@@ -16,6 +16,8 @@ class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
     override fun calculateEnergyForRequests(): Map<String, String> {
         val traces = traceManager.getTraces()
 
+        _log.warn("Ignoring architecture description with ${archDesc.getStructure().elements.size} elements")
+
         var estimates = HashMap<String, String>()
         for (t in traces) {
             _log.info("Calculating resource usage for trace ${t.root.spanId} (network address ${t.root.networkAddress})")
