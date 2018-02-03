@@ -5,6 +5,13 @@ import com.artechra.apollo.netinfo.ContainerAddressMap
 import com.artechra.apollo.netinfo.NetInfo
 
 class StubNetInfo(val addrToContainerMap : AddressContainerMap, val containerToAddrMap : ContainerAddressMap) : NetInfo {
+    override fun getNameForContainerId(containerId: String): String? {
+        throw IllegalStateException("not implemented")
+    }
+
+    override fun getContainerIdWithName(name: String): String? {
+        throw IllegalStateException("not implemented")
+    }
 
     override fun getContainersForAddresses(): AddressContainerMap {
         return addrToContainerMap

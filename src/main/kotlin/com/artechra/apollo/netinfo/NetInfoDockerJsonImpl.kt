@@ -9,6 +9,7 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
     private val containerToAddress: MutableMap<String, String> = HashMap<String, String>()
     private val addressToContainer: MutableMap<String, String> = HashMap<String, String>()
     private val containerIdToName: MutableMap<String, String> = HashMap<String, String>()
+    private val containerNameToId: MutableMap<String, String> = HashMap<String, String>()
 
     init {
         if (!File(netInfoFileName).canRead()) {
@@ -26,6 +27,7 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
                 val netAddr = cidrAddressToNetworkAddress(containerData["IPv4Address"] as String)
 
                 containerIdToName.put(containerId, containerName)
+                containerNameToId.put(containerName, containerId)
                 containerToAddress.put(containerId, netAddr)
                 addressToContainer.put(netAddr, containerId)
             }
@@ -53,6 +55,14 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
 
     override fun getAddressForContainerId(containerId: String): String? {
         return containerToAddress[containerId]
+    }
+
+    override fun getNameForContainerId(containerId : String) : String? {
+        return containerIdToName[containerId]
+    }
+
+    override fun getContainerIdWithName(name : String) : String? {
+        return containerNameToId[name]
     }
 
     // This removes port number and "CIDR" information from the network address by splitting
