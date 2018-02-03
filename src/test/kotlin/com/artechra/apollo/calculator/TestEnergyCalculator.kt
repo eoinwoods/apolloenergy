@@ -20,7 +20,7 @@ class TestEnergyCalculator {
                                       traceManager = StubTraceManager(listOf(Trace(setOf(Span("54C92796854B15C8", "54C92796854B15C8","192.168.1.1", baseTime+10000, baseTime+20000))))))
         val result = ec.calculateEnergyForRequests()
         assertEquals(1, result.size)
-        assertEquals("192.168.1.1", result.keys.toTypedArray()[0])
-        assertEquals(-1, result["192.168.1.1"])
+        assertEquals("54C92796854B15C8", result.keys.toTypedArray()[0])
+        assertEquals("[cpuTicks=2000, memoryMbytes=200, diskIoBytes=123, netIoBytes=456]", result["54C92796854B15C8"])
     }
 }
