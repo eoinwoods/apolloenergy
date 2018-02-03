@@ -1,0 +1,12 @@
+{
+    "Name" : "System1",
+    "Components" : [
+        { "ComponentName": "C1", "SubComponents" : []},
+        { "ComponentName": "C2", "SubComponents" : ["C2.1", "C2.2"]},
+        { "ComponentName": "C3", "SubComponents" : ["C3.1"]},
+        { "ComponentName": "C2.1", "SubComponents" : ["C2.1.1"]},
+        { "ComponentName": "C2.1.1", "SubComponents" : []},
+        { "ComponentName": "C2.2", "SubComponents" : []},
+        { "ComponentName": "C3.1", "SubComponents" : []}
+    ]
+}
