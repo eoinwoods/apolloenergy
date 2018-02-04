@@ -3,7 +3,6 @@ package com.artechra.apollo.netinfo
 import com.artechra.apollo.integration.IntegrationTestConstants
 import com.artechra.apollo.util.TestUtil.Companion.getDataFilePath
 import org.junit.Test
-import java.io.File
 import kotlin.test.assertEquals
 
 class TestNetInfoDockerJsonImpl {
@@ -45,6 +44,22 @@ class TestNetInfoDockerJsonImpl {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
         val gatewayName = obj.getContainerIdWithName("gateway")
         assertEquals(IntegrationTestConstants.GATEWAY_CONTAINER_ID, gatewayName, "Wrong ID for Gateway container name")
+    }
+
+    @Test
+    fun testContainerNameResolvesToCorrectAddress() {
+        val obj = NetInfoDockerJsonImpl(defaultDataFile())
+        val gatewayIp = obj.getAddressForContainerName("gateway")
+        assertEquals("172.18.0.7", gatewayIp, "Wrong network address for Gateway container")
+
+    }
+
+    @Test
+    fun testAddressResolvesToCorrectContainerName() {
+        val obj = NetInfoDockerJsonImpl(defaultDataFile())
+        val gatewayName = obj.getNameForContainerAddress("172.18.0.7")
+        assertEquals("gateway", gatewayName, "Wrong name for Gateway container")
+
     }
 
 }

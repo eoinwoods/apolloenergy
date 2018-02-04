@@ -33,4 +33,6 @@ interface NetInfo {
     fun getAddressForContainerId(containerId : String) : String?
     fun getNameForContainerId(containerId: String) : String?
     fun getContainerIdWithName(name : String) : String?
+    fun getAddressForContainerName(containerName : String) : String?
+    fun getNameForContainerAddress(ipAddr : String) : String?
 }

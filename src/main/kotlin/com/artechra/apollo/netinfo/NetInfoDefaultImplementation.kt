@@ -1,6 +1,14 @@
 package com.artechra.apollo.netinfo
 
 class NetInfoDefaultImplementation : NetInfo {
+    override fun getAddressForContainerName(containerName: String): String? {
+        return " 192.168.1.1"
+    }
+
+    override fun getNameForContainerAddress(ipAddr: String): String? {
+        return "container1"
+    }
+
     override fun getNameForContainerId(containerId: String): String? {
         return "container1"
     }

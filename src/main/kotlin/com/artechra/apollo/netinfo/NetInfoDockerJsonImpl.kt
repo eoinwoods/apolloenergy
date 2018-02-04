@@ -65,6 +65,18 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
         return containerNameToId[name]
     }
 
+    override fun getAddressForContainerName(containerName: String): String? {
+        val cid = getContainerIdWithName(containerName) ?: return null
+        return getAddressForContainerId(cid)
+    }
+
+    override fun getNameForContainerAddress(ipAddr: String): String? {
+        val cid = getContainerIdWithAddress(ipAddr) ?: return null
+        return getNameForContainerId(cid)
+    }
+
+
+
     // This removes port number and "CIDR" information from the network address by splitting
     // and just taking the first piece which is the IP address or host name
     private fun cidrAddressToNetworkAddress(cidrAddress: String): String {
