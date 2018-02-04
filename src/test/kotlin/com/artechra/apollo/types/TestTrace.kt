@@ -6,9 +6,11 @@ import org.junit.Test
 
 class TestTrace {
     val baseTimeMsec = 1515237412000
-    val root  = Span("54C92796854B15C8", "54C92796854B15C8","192.168.1.1", baseTimeMsec+0, baseTimeMsec+500)
-    val span1 = Span("C925BFAC9556A68A", "54C92796854B15C8", "192.168.1.2", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
-    val span2 = Span("F59EAF6D7B9C5C49", "54C92796854B15C8", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, root.spanId)
+    val root  =   Span("54C92796854B15C8", "54C92796854B15C8","192.168.1.1", baseTimeMsec+0, baseTimeMsec+500)
+    val span1 =   Span("54C92796854B15C8", "54C92796854B1600", "192.168.1.2", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
+    val span2 =   Span("54C92796854B15C8", "54C92796854B1700", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, root.spanId)
+    val span2_1 = Span("54C92796854B15C8", "54C92796854B1701", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
+    val span2_2 = Span("54C92796854B15C8", "54C92796854B1702", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
 
 
     // perhaps this should be in a TestSpan test, but Span is really part of Trace
@@ -35,10 +37,7 @@ class TestTrace {
 
     @Test
     fun rootSpanShouldBeIdentifiedWithChildren() {
-        val t = Trace(
-            setOf(root, span1, span2)
-        )
-
+        val t = Trace(setOf(root, span1, span2))
         assertEquals("wrong root for trace", t.root, root)
     }
 
@@ -52,6 +51,12 @@ class TestTrace {
     fun childrenShouldBeSpansLessRoot() {
         val t = Trace(setOf(root, span1, span2))
         assertEquals("unexpected set of children", t.children, setOf(span1, span2))
+    }
+
+    @Test
+    fun childrenShouldBeCorrectlyReturned() {
+        val t = Trace(setOf(root, span1, span2, span2_1, span2_2))
+        assertEquals("Wrong child set", setOf(span2_1, span2_2), t.findChildrenOfSpan(span2))
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -22,6 +22,10 @@ data class Trace(val spans : Set<Span>) {
         return root.endTimeMsec
     }
 
+    fun findChildrenOfSpan(s : Span) : Set<Span> {
+        return HashSet(children.filter {it.parentId == s.spanId})
+    }
+
     private fun findRoot(spans : Set<Span>) : Span? {
         for (s in spans) {
             if (s.parentId == null)
