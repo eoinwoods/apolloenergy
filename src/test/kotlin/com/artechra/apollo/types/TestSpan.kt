@@ -1,5 +1,6 @@
 package com.artechra.apollo.types
 
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import java.lang.IllegalArgumentException
 
@@ -45,9 +46,23 @@ class TestSpan {
         Span("3D5775034F9411B8", "3D5775034F9411B8","1.1.1.1", startTimeMsec, endTimeMsec)
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun testWrongStartTimePrecisionIsNotAccepted() {
-        Span("3D5775034F9411B8", "3D5775034F9411B8","1.1.1.1", startTimeMsec - 2000, endTimeMsec)
+        Span("3D5775034F9411B8", "3D5775034F9411B8","1.1.1.1", startTimeMsec / 10, endTimeMsec)
     }
 
+    @Test
+    fun testThatSpanEqualsWorksForSameObject() {
+        val s1 = Span("F59EAF6D7B9C5C49", "3D5775034F9411B8","255.255.255.255", startTimeMsec, endTimeMsec)
+
+        assertEquals(s1, s1)
+    }
+
+    @Test
+    fun testThatSpanEqualsWorksForDifferentObjects() {
+        val s1 = Span("F59EAF6D7B9C5C49", "3D5775034F9411B8","255.255.255.255", startTimeMsec, endTimeMsec)
+        val s2 = Span("F59EAF6D7B9C5C49", "3D5775034F9411B8","255.255.255.255", startTimeMsec, endTimeMsec)
+
+        assertEquals(s1, s2)
+    }
 }
