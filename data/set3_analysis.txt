@@ -15,7 +15,7 @@ Turns out the solution is to find the 'sr' ("server received") annotation spans 
 
 Example query:
 
-select hex(s.id), a_key, name, start_ts, start_ts+duration as 'end_ts', inet_ntoa(endpoint_ipv4 & conv('ffffffff', 16, 10)), endpoint_port 
+select hex(s.trace_id) as trace_id, hex(s.id) as span_id, a_key, name, start_ts, start_ts+duration as 'end_ts', inet_ntoa(endpoint_ipv4 & conv('ffffffff', 16, 10)), endpoint_port 
 from zipkin_spans s, zipkin_annotations a 
 where hex(s.trace_id) = upper('f59eaf6d7B9c5c49') 
 and s.trace_id = a.trace_id 
@@ -98,7 +98,7 @@ Query now returns '11' as the count:
 select count(usage_total) from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
 Now select data around the start time for the Zipkin trace:
-select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 20s and time < 1515237435811000000 + 20s
+select time, container_name, usage_total from docker_container_cpu where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228' and cpu = 'cpu-total' and time > 1515237435811000000 - 20s and time < 1515237435811000000 + 20s order by time
 
 How much of a "window" is needed around the time of interest?  Telegraf collects data every 10 seconds (this is our configuration setting).  If we collect data between t - 10s and t + 10s then assuming perfect 10 second intervals we must always get a minimum of 2 samples (use a picture to be sure).  However this relies on Telegraf sample intervals being perfect, so we'll double it and use t - 20s and t + 20s.
 
