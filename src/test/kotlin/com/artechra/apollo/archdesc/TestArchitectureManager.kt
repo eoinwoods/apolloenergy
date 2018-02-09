@@ -7,6 +7,6 @@ class TestArchitectureManager {
 
     @Test
     fun theNullImplementationShouldReturnEmptyList() {
-        assertTrue(ArchitectureManagerDefaultImpl().getStructure().elements.size == 0 )
+        assertTrue(ArchitectureManagerDefaultImpl().getStructure().elements.size == 1 )
     }
 }

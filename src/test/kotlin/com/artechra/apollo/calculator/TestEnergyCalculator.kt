@@ -8,6 +8,7 @@ import com.artechra.apollo.types.Span
 import com.artechra.apollo.types.Trace
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class TestEnergyCalculator {
 
@@ -21,6 +22,6 @@ class TestEnergyCalculator {
         val result = ec.calculateEnergyForRequests()
         assertEquals(1, result.size)
         assertEquals("54C92796854B15C8", result.keys.toTypedArray()[0])
-        assertEquals("[cpuTicks=2000, memoryMbytes=200, diskIoBytes=123, netIoBytes=456]", result["54C92796854B15C8"])
+        assertTrue(result["54C92796854B15C8"]!!.totalCpu > 0)
     }
 }

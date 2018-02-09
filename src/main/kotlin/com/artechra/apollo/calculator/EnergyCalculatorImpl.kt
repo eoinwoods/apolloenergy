@@ -3,11 +3,8 @@ package com.artechra.apollo.calculator
 import com.artechra.apollo.archdesc.ArchitectureManager
 import com.artechra.apollo.netinfo.NetInfo
 import com.artechra.apollo.resusage.ResourceUsageManager
-import com.artechra.apollo.types.Trace
 import com.artechra.apollo.traces.TraceManager
-import com.artechra.apollo.types.ArchitecturalDescription
-import com.artechra.apollo.types.ArchitecturalElement
-import com.artechra.apollo.types.Span
+import com.artechra.apollo.types.*
 import org.apache.logging.log4j.LogManager
 
 class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
@@ -16,12 +13,12 @@ class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
                            val archDesc: ArchitectureManager) : EnergyCalculator {
     val _log = LogManager.getLogger(EnergyCalculatorImpl::class.qualifiedName)
 
-    override fun calculateEnergyForRequests(): Map<String, String> {
+    override fun calculateEnergyForRequests(): Map<String, EnergyEstimate> {
         val traces = traceManager.getTraces()
 
         val augmentedTraces = addSyntheticSpansForArchitecturalElements(traces, archDesc.getStructure(), netInfo)
 
-        var estimates = HashMap<String, String>()
+        var estimates = HashMap<String, EnergyEstimate>()
         for (t in augmentedTraces) {
             _log.info("Calculating resource usage for trace ${t.root.spanId} (network address ${t.root.networkAddress})")
             val energyEstimate = calculateEnergyForRequest(t, resUsageManager)
@@ -63,15 +60,16 @@ class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
         return spans.map{netInfo.getNameForContainerAddress(it.networkAddress) ?: ""}.filter{it.length > 0}
     }
 
-    fun calculateEnergyForRequest(t : Trace, resourceUsageMgr: ResourceUsageManager) : String {
+    fun calculateEnergyForRequest(t : Trace, resourceUsageMgr: ResourceUsageManager) : EnergyEstimate {
         val tc = TraceCalculator(t, resourceUsageMgr, netInfo)
         val usage = tc.calculateTotalResourceUsage()
-        return resourceUsageToEnergy(usage.totalCpu, usage.totalMemory, usage.totalDiskIo, usage.totalNetIo)
+        val energyW = resourceUsageToEnergyWatts(usage.totalCpu, usage.totalMemory, usage.totalDiskIo, usage.totalNetIo)
+        return EnergyEstimate(usage, energyW)
     }
 
-    fun resourceUsageToEnergy(cpuTicks : Long, memoryMb : Long, diskIoBytes : Long, netIoBytes : Long) : String {
+    fun resourceUsageToEnergyWatts(cpuTicks : Long, memoryMb : Long, diskIoBytes : Long, netIoBytes : Long) : Long {
         // Call the energy model eventually
         _log.info("resourceUsageToEnergy($cpuTicks, $memoryMb, $diskIoBytes, $netIoBytes)")
-        return "[cpuTicks=$cpuTicks, memoryMbytes=$memoryMb, diskIoBytes=$diskIoBytes, netIoBytes=$netIoBytes]"
+        return java.util.Random().nextLong()
     }
 }
