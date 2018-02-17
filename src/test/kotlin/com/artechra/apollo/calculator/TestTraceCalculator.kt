@@ -21,9 +21,9 @@ class TestTraceCalculator {
         val nullTrace = Trace(setOf(Span("54C92796854B15C8","54C92796854B15C8", "192.168.1.2",baseTime+100000, baseTime+110000)))
         val tc = TraceCalculator(nullTrace, emptyResourceUsageManager, emptyNetInfo)
         val resUsage = tc.calculateTotalResourceUsage()
-        assertEquals("Wrong CPU total", 1, resUsage.totalCpu)
-        assertEquals("Wrong memory total", 2, resUsage.totalMemory)
-        assertEquals("Wrong diskio total", 3, resUsage.totalDiskIo)
-        assertEquals("Wrong netio total", 4, resUsage.totalNetIo)
+        assertEquals("Wrong CPU total", 1, resUsage.totalCpuTicks)
+        assertEquals("Wrong memory total", 2, resUsage.totalMemoryBytes)
+        assertEquals("Wrong diskio total", 3, resUsage.totalDiskIoBytes)
+        assertEquals("Wrong netio total", 4, resUsage.totalNetIoBytes)
     }
 }

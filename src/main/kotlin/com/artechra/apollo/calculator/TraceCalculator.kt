@@ -9,7 +9,7 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
 
     fun calculateTotalResourceUsage() : ResourceUsage {
         var totalCpuTicks    = 0L
-        var totalMemoryMb    = 0L
+        var totalMemoryBytes = 0L
         var totalDiskIoBytes = 0L
         var totalNetIoBytes  = 0L
 
@@ -20,12 +20,12 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
                             throw IllegalStateException("No container found for ipAddr " + span.networkAddress + " in span " + span.spanId)
             val resourceMetrics =
                     resourceUsageMgr.getResourceUsage(containerId, span.startTimeMsec, span.endTimeMsec)
-            totalCpuTicks    += resourceMetrics.usage.totalCpu
-            totalMemoryMb    += resourceMetrics.usage.totalMemory
-            totalDiskIoBytes += resourceMetrics.usage.totalDiskIo
-            totalNetIoBytes  += resourceMetrics.usage.totalNetIo
+            totalCpuTicks    += resourceMetrics.usage.totalCpuTicks
+            totalMemoryBytes    += resourceMetrics.usage.totalMemoryBytes
+            totalDiskIoBytes += resourceMetrics.usage.totalDiskIoBytes
+            totalNetIoBytes  += resourceMetrics.usage.totalNetIoBytes
         }
-        return ResourceUsage(totalCpuTicks, totalMemoryMb, totalDiskIoBytes, totalNetIoBytes)
+        return ResourceUsage(totalCpuTicks, totalMemoryBytes, totalDiskIoBytes, totalNetIoBytes)
     }
 
 }

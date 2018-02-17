@@ -63,8 +63,8 @@ class EnergyCalculatorImpl(val resUsageManager: ResourceUsageManager,
     fun calculateEnergyForRequest(t : Trace, resourceUsageMgr: ResourceUsageManager) : EnergyEstimate {
         val tc = TraceCalculator(t, resourceUsageMgr, netInfo)
         val usage = tc.calculateTotalResourceUsage()
-        val energyW = resourceUsageToEnergyWatts(usage.totalCpu, usage.totalMemory, usage.totalDiskIo, usage.totalNetIo)
-        return EnergyEstimate(usage, energyW)
+        val energyJ = resourceUsageToEnergyWatts(usage.totalCpuTicks, usage.totalMemoryBytes, usage.totalDiskIoBytes, usage.totalNetIoBytes)
+        return EnergyEstimate(usage, energyJ)
     }
 
     fun resourceUsageToEnergyWatts(cpuTicks : Long, memoryMb : Long, diskIoBytes : Long, netIoBytes : Long) : Long {
