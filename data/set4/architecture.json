@@ -1,9 +1,0 @@
-{
-    "Name" : "Set4",
-    "Components" : [
-        { "ComponentName": "gateway", "SubComponents" : []},
-        { "ComponentName": "cpuhog", "SubComponents" : []},
-        { "ComponentName": "datahog", "SubComponents" : ["datahogdb"]},
-        { "ComponentName": "datahogdb", "SubComponents" : []}
-    ]
-}
