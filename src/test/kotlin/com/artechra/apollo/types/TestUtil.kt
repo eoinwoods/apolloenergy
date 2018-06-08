@@ -18,6 +18,18 @@ class TestUtil {
     }
 
     @Test
+    fun testThatInterpolationWithReducingValidIsCorrect() {
+        val t1 = 1000L
+        val v1 = 5000L
+        val t2 = 1050L
+        val v2 = 3000L
+        val requiredPoint = 1031L
+
+        assertEquals(3760, Util.interpolateBetweenPoints(t1, v1, t2, v2, requiredPoint))
+
+    }
+
+    @Test
     fun testThatInterpolationToFirstPointIsCorrect() {
         val t1 = 1000L
         val v1 = 4598L
