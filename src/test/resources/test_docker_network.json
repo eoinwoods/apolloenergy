@@ -59,21 +59,21 @@
         },
         "ConfigOnly": false,
         "Containers": {
-            "5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228": {
+            "2c7c7e5cc08f8bbf8d64bc506e84e4ba84f6aca91fefd53d133c481762fdac3a": {
                 "Name": "gateway",
                 "EndpointID": "3ae4fce91b52995461b4b792059c8930647b3deed78f5b794ce2f0d71e0e4be9",
                 "MacAddress": "02:42:ac:12:00:07",
                 "IPv4Address": "172.18.0.7/16",
                 "IPv6Address": ""
             },
-            "a34488c68b81c5b07fcdf81d6a691b4b462018b62437ab87386b297a95e77527": {
+            "8b9e3f7bd3c59485dc55db54529be84ba260c0e79e76184f2144c7dd085630f0": {
                 "Name": "influxdb",
                 "EndpointID": "2760834b4376bd6ce1bf15e47e8537ea5f71470130fcd9fa1b1f2713b0a6054f",
                 "MacAddress": "02:42:ac:12:00:03",
                 "IPv4Address": "172.18.0.3/16",
                 "IPv6Address": ""
             },
-            "cd299a7d035895a05937c72ce127459d613ba028e2bb33218892cc3cd201301c": {
+            "392fad21c444e1ef2b604e7887cf29be477668eafd1396db4aef1f1d61997d97": {
                 "Name": "zipkin",
                 "EndpointID": "892cd021957c9f5c0253c29b12787a9764764a1377dcd6a8760b31261a8de818",
                 "MacAddress": "02:42:ac:12:00:04",
@@ -87,14 +87,14 @@
                 "IPv4Address": "172.18.0.5/16",
                 "IPv6Address": ""
             },
-            "da18395d6f088729e1a5d0b9dc0c610d2a27e1298f2fa550b903c352a0acccbc": {
+            "d74988dd53721a5d18feb7fc110be0e7b5ee635a5d16318272db2cbea7a101d2": {
                 "Name": "mysql",
                 "EndpointID": "b736d83ee5908d2875f7a8f2044e242f40f3100b24958f5e53cc3f9701add9a9",
                 "MacAddress": "02:42:ac:12:00:02",
                 "IPv4Address": "172.18.0.2/16",
                 "IPv6Address": ""
             },
-            "ddfb6dde9f71b17dff3acda7a4f813dbf9ae3a536456765f7eca9b1d96a845fb": {
+            "e303bb2c6664d620edee2a601c6afcb0623be4828fb4fe84c1253176d05e1f46": {
                 "Name": "cpuhog",
                 "EndpointID": "4b766d03ae47d71a53c53d5540bd7ec23ea8ba8544f886ba2d7c9c32dd774882",
                 "MacAddress": "02:42:ac:12:00:06",

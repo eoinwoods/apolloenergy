@@ -23,7 +23,7 @@ class TestInfluxDbDecorator {
     fun testThatFindingBestPointInListFindsMidValue() {
         // findMeasurementsAroundPointInTime
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), IntegrationTestConstants.SPAN_START_TIME_MS)
+                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237437456)
         assertEquals(1515237432000, before.getTimeMillis())
         assertEquals(1515237442000, after.getTimeMillis())
     }
