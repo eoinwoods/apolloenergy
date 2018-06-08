@@ -15,7 +15,7 @@ class TestInfluxDbResourceManager {
     }
 
     @Test
-    fun testGetResourceUsageForCpuhogInDataSet3ReturnsValidValues() {
+    fun testGetResourceUsageForCpuhogInTestDatasetReturnsValidValues() {
         val resUsage = resUsageManager.getResourceUsage(IntegrationTestShared.GATEWAY_CONTAINER_ID,
                 IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
         println("RESUSAGE: ${resUsage}")
@@ -28,13 +28,13 @@ class TestInfluxDbResourceManager {
     }
 
     @Test
-    fun testGetResourceUsageForDatbaseInDataSet3ReturnsValidValues() {
+    fun testGetResourceUsageForDatbaseInTestDatasetReturnsValidValues() {
         val resUsage = resUsageManager.getResourceUsage(IntegrationTestShared.INFLUXDB_CONTAINER_ID,
                 IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
         println("RESUSAGE: ${resUsage}")
         assertTrue(resUsage.usage.totalCpuTicks > 0, "No CPU reported")
-        assertTrue(resUsage.usage.totalMemoryBytes > 0, "No memory reported")
-        assertTrue(resUsage.usage.totalDiskIoBytes > 0, "Unexpected Disk IO reported")
+        assertTrue(resUsage.usage.totalMemoryBytes > 0, "Unexpected memory reported")
+        assertTrue(resUsage.usage.totalDiskIoBytes > 0, "No Disk IO reported")
         assertTrue(resUsage.usage.totalNetIoBytes > 0, "No network IO reported")
 
     }
