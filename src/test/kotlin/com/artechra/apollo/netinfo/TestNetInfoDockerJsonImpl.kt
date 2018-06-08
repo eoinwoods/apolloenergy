@@ -1,6 +1,6 @@
 package com.artechra.apollo.netinfo
 
-import com.artechra.apollo.integration.IntegrationTestConstants
+import com.artechra.apollo.integration.IntegrationTestShared
 import com.artechra.apollo.util.TestUtil.Companion.getDataFilePath
 import junit.framework.TestCase.assertNull
 import org.junit.Test
@@ -21,14 +21,14 @@ class TestNetInfoDockerJsonImpl {
     @Test
     fun testExpectedContainerHasNetworkAddress() {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
-        val influxAddr = obj.getAddressForContainerId(IntegrationTestConstants.INFLUXDB_CONTAINER_ID)
+        val influxAddr = obj.getAddressForContainerId(IntegrationTestShared.INFLUXDB_CONTAINER_ID)
         assertEquals("172.18.0.3", influxAddr, "Wrong address for InfluxDb container")
     }
 
     @Test
     fun testExpectedContainerHasName() {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
-        val influxAddr = obj.getNameForContainerId(IntegrationTestConstants.INFLUXDB_CONTAINER_ID)
+        val influxAddr = obj.getNameForContainerId(IntegrationTestShared.INFLUXDB_CONTAINER_ID)
         assertEquals("influxdb", influxAddr, "Wrong name for InfluxDb container")
     }
 
@@ -37,7 +37,7 @@ class TestNetInfoDockerJsonImpl {
     fun testNetworkAddressResolvesToCorrectContainer() {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
         val gatewayAddr = obj.getContainerIdWithAddress("172.18.0.7")
-        assertEquals(IntegrationTestConstants.GATEWAY_CONTAINER_ID, gatewayAddr, "Wrong ID for Gateway container address")
+        assertEquals(IntegrationTestShared.GATEWAY_CONTAINER_ID, gatewayAddr, "Wrong ID for Gateway container address")
     }
 
     @Test
@@ -68,7 +68,7 @@ class TestNetInfoDockerJsonImpl {
     fun testContainerNameResolvesToCorrectContainer() {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
         val gatewayName = obj.getContainerIdWithName("gateway")
-        assertEquals(IntegrationTestConstants.GATEWAY_CONTAINER_ID, gatewayName, "Wrong ID for Gateway container name")
+        assertEquals(IntegrationTestShared.GATEWAY_CONTAINER_ID, gatewayName, "Wrong ID for Gateway container name")
     }
 
     @Test

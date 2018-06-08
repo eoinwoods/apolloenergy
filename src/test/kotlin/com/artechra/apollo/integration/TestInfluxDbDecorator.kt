@@ -12,13 +12,13 @@ class TestInfluxDbDecorator {
     val LOG = Logger.getLogger(this.javaClass.name)
 
     companion object {
-        private val DBURL               = IntegrationTestConstants.INFLUX_URL
-        private val DATABASE            = IntegrationTestConstants.DB_NAME
+        private val DBURL               = IntegrationTestShared.INFLUX_URL
+        private val DATABASE            = IntegrationTestShared.DB_NAME
 
-        private val CONTAINER_ID        = IntegrationTestConstants.GATEWAY_CONTAINER_ID
-        private val DISKIO_CONTAINER_ID = IntegrationTestConstants.INFLUXDB_CONTAINER_ID
-        private val SPAN_TIME_MS        = IntegrationTestConstants.SPAN_START_TIME_MS
-        private val TEST_SET            = IntegrationTestConstants.TEST_SET_NAME
+        private val CONTAINER_ID        = IntegrationTestShared.GATEWAY_CONTAINER_ID
+        private val DISKIO_CONTAINER_ID = IntegrationTestShared.INFLUXDB_CONTAINER_ID
+        private val SPAN_TIME_MS        = IntegrationTestShared.SPAN_START_TIME_MS
+        private val TEST_SET            = IntegrationTestShared.TEST_SET_NAME
     }
 
     private var influxdb: InfluxDbDecorator? = null
@@ -26,7 +26,7 @@ class TestInfluxDbDecorator {
     @Before
     fun setup() {
         this.influxdb = InfluxDbDecorator(DBURL, DATABASE)
-        assertEquals(TEST_SET, getTestDataSetLoadedName())
+        assertEquals(TEST_SET, IntegrationTestShared.getTestDataSetLoadedName(influxdb!!, DATABASE))
     }
 
     @After

@@ -1,6 +1,5 @@
 package com.artechra.apollo.resusage
 
-import com.artechra.apollo.integration.IntegrationTestConstants
 import org.junit.Test
 import kotlin.test.assertEquals
 

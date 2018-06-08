@@ -12,11 +12,14 @@ import javax.sql.DataSource
 
 class TestMySqlZipkinTraceManager {
 
+    val MULTI_SPAN_TRACE_ID = "5DDDECCF2119C5BB"
+    val TEST_DATA_SET = IntegrationTestShared.TEST_SET_NAME
+
     @Before
     fun checkPreconditions() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val name = jdbcTemplate.queryForObject("select name from zipkin.zipkin_spans where trace_id = 0 and id = 1", String::class.java)
-        assertEquals("20180604-v2-cpu-data-mix", name)
+        assertEquals(TEST_DATA_SET, name)
     }
 
     @Test
@@ -31,7 +34,7 @@ class TestMySqlZipkinTraceManager {
     fun testThatCorrectNumberOfSpansContainedInMultiSpanTrace() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val multiSpanTraceId = MULTI_SPAN_TRACE_ID
         val trace = traceManager.getTrace(multiSpanTraceId)
         assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
     }
@@ -40,7 +43,7 @@ class TestMySqlZipkinTraceManager {
     fun testThatExampleSpanIsPopulated() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val multiSpanTraceId = MULTI_SPAN_TRACE_ID
         val trace = traceManager.getTrace(multiSpanTraceId)
         val exampleSpans = trace.spans.asIterable().filter { it.parentId != null}
         val exampleSpan = exampleSpans[0]
@@ -57,7 +60,7 @@ class TestMySqlZipkinTraceManager {
     fun testThatSpanTimesAreCredibleInMultiSpanTrace() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val multiSpanTraceId = MULTI_SPAN_TRACE_ID
         val trace = traceManager.getTrace(multiSpanTraceId)
         assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
         var earliestStartMsec : Long = Long.MAX_VALUE
@@ -75,10 +78,10 @@ class TestMySqlZipkinTraceManager {
         // the required parameters such as the Jdbc Driver class,
         // Jdbc URL, database user name and password.
         val dataSource = DriverManagerDataSource()
-        dataSource.setDriverClassName(IntegrationTestConstants.MYSQL_DRIVER)
-        dataSource.url = IntegrationTestConstants.MYSQL_URL
-        dataSource.username = IntegrationTestConstants.MYSQL_USER
-        dataSource.password = IntegrationTestConstants.MYSQL_PASS
+        dataSource.setDriverClassName(IntegrationTestShared.MYSQL_DRIVER)
+        dataSource.url = IntegrationTestShared.MYSQL_URL
+        dataSource.username = IntegrationTestShared.MYSQL_USER
+        dataSource.password = IntegrationTestShared.MYSQL_PASS
         return dataSource
     }
 }
