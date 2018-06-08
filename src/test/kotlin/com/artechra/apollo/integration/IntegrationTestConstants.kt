@@ -11,12 +11,12 @@ class IntegrationTestConstants {
         val MYSQL_USER = "zipkin"
         val MYSQL_PASS = "zipkin"
 
-        // These values correspond to data in test data set 3
-        val GATEWAY_CONTAINER_ID = "5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228"
-        val INFLUXDB_CONTAINER_ID = "a34488c68b81c5b07fcdf81d6a691b4b462018b62437ab87386b297a95e77527"
-        val SPAN_START_TIME_MS = 1515237435811
-        val SPAN_END_TIME_MS   = 1515237438736
-        val TEST_SET_NAME = "set3"
+        // These values correspond to data in test data set '20180604-v2-cpu-data-mix'
+        val GATEWAY_CONTAINER_ID = "2c7c7e5cc08f8bbf8d64bc506e84e4ba84f6aca91fefd53d133c481762fdac3a"
+        val INFLUXDB_CONTAINER_ID = "8b9e3f7bd3c59485dc55db54529be84ba260c0e79e76184f2144c7dd085630f0"
+        val SPAN_START_TIME_MS = 1528144292000
+        val SPAN_END_TIME_MS   = 1528144299000
+        val TEST_SET_NAME = "20180604-v2-cpu-data-mix"
 
     }
 }

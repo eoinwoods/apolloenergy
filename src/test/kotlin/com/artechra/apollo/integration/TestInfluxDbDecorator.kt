@@ -3,9 +3,7 @@ package com.artechra.apollo.integration
 import com.artechra.apollo.resusage.*
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import java.util.logging.Logger
 import kotlin.test.assertEquals
 
@@ -28,6 +26,7 @@ class TestInfluxDbDecorator {
     @Before
     fun setup() {
         this.influxdb = InfluxDbDecorator(DBURL, DATABASE)
+        assertEquals(TEST_SET, getTestDataSetLoadedName())
     }
 
     @After
@@ -41,15 +40,13 @@ class TestInfluxDbDecorator {
         return influxdb ?: throw IllegalStateException("No database connection available")
     }
 
-    @Test
-    fun testThatTestDataSet3IsLoaded() {
+    private fun getTestDataSetLoadedName() : String {
         val query = Query("SELECT * FROM apollo_check WHERE value = 1", DATABASE)
         val dbconn = getDbConn().getInfluxDbConnection()
         val result = dbconn.query(query)
         assertEquals("data_set", result?.results?.get(0)?.series?.get(0)?.columns?.get(2))
         // This is a little arcane but is a reflection of InfluxDB's quite complex result set structure
-        val resultValue = result!!.results[0]!!.series[0]!!.values[0][2] as String
-        assertEquals(TEST_SET, resultValue)
+        return result!!.results[0]!!.series[0]!!.values[0][2] as String
     }
 
     @Test
@@ -62,8 +59,8 @@ class TestInfluxDbDecorator {
         LOG.info("cpuList=" + cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
-        assertEquals(2414055725, cpuList[0].cpuUsage)
-        assertEquals(1515237202000, cpuList[0].timeMillis)
+        assertEquals(1307154115, cpuList[0].cpuUsage)
+        assertEquals(1528144131000, cpuList[0].timeMillis)
     }
 
     @Test
@@ -76,8 +73,8 @@ class TestInfluxDbDecorator {
         assertEquals(1, memList.size)
         LOG.info("memList: " + memList[0])
         assertEquals("cpuhog", memList[0].containerName)
-        assertEquals(441532416, memList[0].memUsage)
-        assertEquals(1515237202000, memList[0].timeMillis)
+        assertEquals(87982080, memList[0].memUsage)
+        assertEquals(1528144131000, memList[0].timeMillis)
     }
 
     @Test
@@ -89,52 +86,52 @@ class TestInfluxDbDecorator {
         val diskIoList = resultMapper.toPOJO(result, DiskIoMeasurement::class.java)
         assertEquals(1, diskIoList.size)
         LOG.info("diskIoList=" + diskIoList[0])
-        assertEquals("influxdb", diskIoList[0].containerName)
-        assertEquals(8192, diskIoList[0].diskIoBytes)
-        assertEquals(1515237202000, diskIoList[0].timeMillis)
+        assertEquals("cpuhog", diskIoList[0].containerName)
+        assertEquals(8343552, diskIoList[0].diskIoBytes)
+        assertEquals(1528144131000, diskIoList[0].timeMillis)
     }
 
     @Test
     fun testThatNetIoMeasurementMappingIsCorrect() {
         val query = Query("SELECT time, container_name, rx_bytes, tx_bytes FROM docker_container_net " +
-                                    "WHERE time = 1515237462000000000 ORDER BY time LIMIT 1", DATABASE)
+                                    "WHERE rx_bytes > 0 and tx_bytes > 0 ORDER BY time LIMIT 1", DATABASE)
         val dbconn = getDbConn().getInfluxDbConnection()
         val result = dbconn.query(query)
         val resultMapper = InfluxDBResultMapper()
         val netIoList = resultMapper.toPOJO(result, NetIoMeasurement::class.java)
         assertEquals(1, netIoList.size)
         LOG.info("netIoList=" + netIoList[0])
-        assertEquals("cpuhog", netIoList[0].containerName)
-        assertEquals(5229, netIoList[0].rxBytes)
-        assertEquals(5654, netIoList[0].txBytes)
-        assertEquals(1515237462000, netIoList[0].timeMillis)
+        assertEquals("influxdb", netIoList[0].containerName)
+        assertEquals(4763, netIoList[0].rxBytes)
+        assertEquals(1418, netIoList[0].txBytes)
+        assertEquals(1528144131000, netIoList[0].timeMillis)
     }
 
     @Test
     fun testThatCpuUsageIsReturned() {
         val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(31029497377, cpuUsage)
+        assertEquals(30944398036, cpuUsage)
     }
 
     @Test
     fun testThatMemUsageIsReturned() {
         val memUsage = getDbConn().getBestMemMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(1122997373, memUsage)
+        assertEquals(931714662, memUsage)
     }
 
     @Test
     fun testThatDiskIoUsageIsReturned() {
         val diskIoUsage = getDbConn().getBestDiskIoMeasureForTime(DISKIO_CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(994554, diskIoUsage)
+        assertEquals(19962675, diskIoUsage)
     }
 
     @Test
     fun testThatNetIoUsageIsReturned() {
         val netIoUsage = getDbConn().getBestNetIoMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(2888, netIoUsage)
+        assertEquals(6837, netIoUsage)
     }
 }
