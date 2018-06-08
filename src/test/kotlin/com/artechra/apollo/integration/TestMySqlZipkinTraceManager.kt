@@ -3,6 +3,7 @@ package com.artechra.apollo.integration
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
 import org.hamcrest.CoreMatchers.*
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
@@ -11,29 +12,36 @@ import javax.sql.DataSource
 
 class TestMySqlZipkinTraceManager {
 
+    @Before
+    fun checkPreconditions() {
+        val jdbcTemplate = JdbcTemplate(getDataSource())
+        val name = jdbcTemplate.queryForObject("select name from zipkin.zipkin_spans where trace_id = 0 and id = 1", String::class.java)
+        assertEquals("20180604-v2-cpu-data-mix", name)
+    }
+
     @Test
     fun testThatSetOfTracesIsReturned() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
         val traces = traceManager.getTraces()
-        assertThat(traces.size, equalTo(3))
+        assertThat(traces.size, equalTo(1))
     }
 
     @Test
     fun testThatCorrectNumberOfSpansContainedInMultiSpanTrace() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val threeSpanTraceId = "C925BFAC9556A68A"
-        val trace = traceManager.getTrace(threeSpanTraceId)
-        assertThat(trace.root.spanId, equalTo(threeSpanTraceId))
+        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val trace = traceManager.getTrace(multiSpanTraceId)
+        assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
     }
 
     @Test
     fun testThatExampleSpanIsPopulated() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val threeSpanTraceId = "C925BFAC9556A68A"
-        val trace = traceManager.getTrace(threeSpanTraceId)
+        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val trace = traceManager.getTrace(multiSpanTraceId)
         val exampleSpans = trace.spans.asIterable().filter { it.parentId != null}
         val exampleSpan = exampleSpans[0]
         assertTrue(exampleSpan.startTimeMsec < exampleSpan.endTimeMsec)
@@ -49,9 +57,9 @@ class TestMySqlZipkinTraceManager {
     fun testThatSpanTimesAreCredibleInMultiSpanTrace() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val threeSpanTraceId = "C925BFAC9556A68A"
-        val trace = traceManager.getTrace(threeSpanTraceId)
-        assertThat(trace.root.spanId, equalTo(threeSpanTraceId))
+        val multiSpanTraceId = "5DDDECCF2119C5BB"
+        val trace = traceManager.getTrace(multiSpanTraceId)
+        assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
         var earliestStartMsec : Long = Long.MAX_VALUE
         var latestEndMsec : Long = 0
         for (s in trace.spans) {
