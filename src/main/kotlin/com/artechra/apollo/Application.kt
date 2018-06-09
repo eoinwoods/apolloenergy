@@ -1,7 +1,5 @@
 package com.artechra.apollo
 
-import com.artechra.apollo.archdesc.ArchitectureManagerDefaultImpl
-import com.artechra.apollo.archdesc.ArchitectureManagerJsonImpl
 import com.artechra.apollo.calculator.EnergyCalculator
 import com.artechra.apollo.calculator.EnergyCalculatorImpl
 import com.artechra.apollo.netinfo.NetInfoDockerJsonImpl
@@ -20,7 +18,6 @@ import kotlin.system.exitProcess
 class Application {
     fun assemble(configuration : Map<String, String>) : EnergyCalculator {
         val archDescFile = getConfigItem("apollo.architecture.description.filename", configuration)
-        val archMgr = ArchitectureManagerJsonImpl(archDescFile)
         val netInfoFile = getConfigItem("apollo.network.info.filename", configuration)
         val netInfo = NetInfoDockerJsonImpl(netInfoFile)
 
@@ -38,7 +35,7 @@ class Application {
         val traceDbPass = getConfigItem("apollo.tracedb.password", configuration)
         val traceMgr = MySqlZipkinTraceManagerImpl(createJdbcTemplate(traceDbDriver, traceDbUrl, traceDbUser, traceDbPass))
 
-        return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo, archMgr)
+        return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo)
     }
 
     private fun getConfigItem(name : String, config : Map<String,String>) : String {
