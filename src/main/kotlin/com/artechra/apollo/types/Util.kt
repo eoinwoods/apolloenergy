@@ -16,6 +16,10 @@ class Util {
         }
 
         fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
+            // in principle this interpolation works for any point on the line described
+            // by the points but to keep things simple limit to use between the points
+            assert(requiredPoint >= point1 && requiredPoint <= point2)
+
             val timeDiff = point2 - point1
             val valueDiff = value2 - value1
 
