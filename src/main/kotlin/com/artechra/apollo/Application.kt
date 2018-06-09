@@ -17,7 +17,6 @@ import kotlin.system.exitProcess
 
 class Application {
     fun assemble(configuration : Map<String, String>) : EnergyCalculator {
-        val archDescFile = getConfigItem("apollo.architecture.description.filename", configuration)
         val netInfoFile = getConfigItem("apollo.network.info.filename", configuration)
         val netInfo = NetInfoDockerJsonImpl(netInfoFile)
 
