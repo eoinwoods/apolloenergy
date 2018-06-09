@@ -15,6 +15,10 @@ class Util {
             return msec * MSEC_TO_NANOSEC_MULTIPLIER
         }
 
+        fun nanosecToMSec(nsec : Long) : Long {
+            return nsec / MSEC_TO_NANOSEC_MULTIPLIER
+        }
+
         fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
             // in principle this interpolation works for any point on the line described
             // by the points but to keep things simple limit to use between the points
