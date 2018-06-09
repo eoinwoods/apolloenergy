@@ -6,17 +6,26 @@ class Util {
     companion object {
         val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
         val MSEC_TO_USEC_MULTIPLIER = 1000L
+        val SEC_TO_MSEC_MULTIPLIER = 1000L
 
-        fun usecToMsec(usec : Long) : Long {
+        @JvmStatic fun usecToMsec(usec : Long) : Long {
             return usec / MSEC_TO_USEC_MULTIPLIER
         }
 
-        fun msecToNanoSec(msec: Long): Long {
+        @JvmStatic fun msecToNanoSec(msec: Long): Long {
             return msec * MSEC_TO_NANOSEC_MULTIPLIER
         }
 
-        fun nanosecToMSec(nsec : Long) : Long {
+        @JvmStatic fun nanosecToMSec(nsec : Long) : Long {
             return nsec / MSEC_TO_NANOSEC_MULTIPLIER
+        }
+
+        @JvmStatic fun msecToSeconds(msec : Long) : Double {
+            return msec / (SEC_TO_MSEC_MULTIPLIER * 1.0)
+        }
+
+        @JvmStatic fun secondsToMsec(seconds: Double) : Long {
+            return (seconds * SEC_TO_MSEC_MULTIPLIER).roundToLong()
         }
 
         fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
