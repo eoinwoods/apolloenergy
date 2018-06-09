@@ -1,7 +1,7 @@
 package com.artechra.apollo.resusage
 
 import com.artechra.apollo.types.ResourceUsage
-import com.artechra.apollo.types.ResourceUsageMeasure
+import com.artechra.apollo.types.ResourceUsageMeasurement
 import com.artechra.apollo.types.Util
 import org.apache.logging.log4j.LogManager
 
@@ -9,7 +9,7 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
 
     private val _log = LogManager.getLogger(this::class.qualifiedName)
 
-    override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMeasure {
+    override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMeasurement {
 
         _log.info("Get resource usage for container $containerId from $startTimeMsec to $endTimeMsec")
         val cpuUsage = getCpuUsage(containerId, startTimeMsec, endTimeMsec)
@@ -27,7 +27,7 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         if (cpuUsage == 0L && memUsage == 0L && diskIo == 0L && netIo == 0L) {
             throw IllegalStateException("Found zero cpu, memory, diskio and netio for container $containerId between $startTimeMsec and $endTimeMsec")
         }
-        return ResourceUsageMeasure(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
+        return ResourceUsageMeasurement(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
     }
 
     private fun getCpuUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
