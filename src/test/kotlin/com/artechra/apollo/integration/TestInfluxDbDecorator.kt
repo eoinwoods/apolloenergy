@@ -18,6 +18,7 @@ class TestInfluxDbDecorator {
         private val CONTAINER_ID        = IntegrationTestShared.GATEWAY_CONTAINER_ID
         private val DISKIO_CONTAINER_ID = IntegrationTestShared.INFLUXDB_CONTAINER_ID
         private val SPAN_TIME_MS        = IntegrationTestShared.SPAN_START_TIME_MS
+        private val HOST_NAME           = IntegrationTestShared.HOST_NAME
         private val TEST_SET            = IntegrationTestShared.TEST_SET_NAME
     }
 
@@ -40,15 +41,6 @@ class TestInfluxDbDecorator {
         return influxdb ?: throw IllegalStateException("No database connection available")
     }
 
-    private fun getTestDataSetLoadedName() : String {
-        val query = Query("SELECT * FROM apollo_check WHERE value = 1", DATABASE)
-        val dbconn = getDbConn().getInfluxDbConnection()
-        val result = dbconn.query(query)
-        assertEquals("data_set", result?.results?.get(0)?.series?.get(0)?.columns?.get(2))
-        // This is a little arcane but is a reflection of InfluxDB's quite complex result set structure
-        return result!!.results[0]!!.series[0]!!.values[0][2] as String
-    }
-
     @Test
     fun testThatCpuMeasurementMappingIsCorrect() {
         val query = Query("SELECT time, container_name, usage_total FROM docker_container_cpu ORDER BY time LIMIT 1", DATABASE)
@@ -61,6 +53,20 @@ class TestInfluxDbDecorator {
         assertEquals("cpuhog", cpuList[0].containerName)
         assertEquals(1307154115, cpuList[0].cpuUsage)
         assertEquals(1528144131000, cpuList[0].timeMillis)
+    }
+
+    @Test
+    fun testThatHostCpuMeasurementMappingIsCorrect() {
+        val query = Query("SELECT time, host, time_active FROM cpu ORDER BY time LIMIT 1", DATABASE)
+        val dbconn = getDbConn().getInfluxDbConnection()
+        val result = dbconn.query(query)
+        val resultMapper = InfluxDBResultMapper()
+        val hostCpuList = resultMapper.toPOJO(result, HostCpuMeasurement::class.java)
+        LOG.info("hostCpuList=" + hostCpuList[0])
+        assertEquals(1, hostCpuList.size)
+        assertEquals("8b9e3f7bd3c5", hostCpuList[0].hostName)
+        assertEquals(43260, hostCpuList[0].cpuUsageMsec)
+        assertEquals(1528144130000, hostCpuList[0].timeMillis)
     }
 
     @Test
@@ -112,6 +118,13 @@ class TestInfluxDbDecorator {
         val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
         assertEquals(30944398036, cpuUsage)
+    }
+
+    @Test
+    fun testThatHostCpuUsageIsReturned() {
+        val hostCpuMsecs = getDbConn().getBestHostCpuMsecMeasureForTime(HOST_NAME, SPAN_TIME_MS)
+        // Manually calculated value
+        assertEquals(197566, hostCpuMsecs)
     }
 
     @Test

@@ -30,7 +30,7 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerAtTime(CPU_QUERY_TEMPLATE, CpuMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        return getBestMeasureForContainerOrHostAtTime(CPU_QUERY_TEMPLATE, CpuMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
     fun getBestMemMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -38,7 +38,7 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerAtTime(MEM_QUERY_TEMPLATE, MemMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        return getBestMeasureForContainerOrHostAtTime(MEM_QUERY_TEMPLATE, MemMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
     fun getBestDiskIoMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -46,7 +46,7 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = 'cd299a7d035895a05937c72ce127459d613ba028e2bb33218892cc3cd201301c'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerAtTime(DISKIO_QUERY_TEMPLATE, DiskIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        return getBestMeasureForContainerOrHostAtTime(DISKIO_QUERY_TEMPLATE, DiskIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
     fun getBestNetIoMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -54,12 +54,17 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerAtTime(NETIO_QUERY_TEMPLATE, NetIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        return getBestMeasureForContainerOrHostAtTime(NETIO_QUERY_TEMPLATE, NetIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
     }
 
-    private fun getBestMeasureForContainerAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerId: String, timeMsec: Long): Long {
+    fun getBestHostCpuMsecMeasureForTime(hostName: String, timeMsec: Long) : Long {
+        return getBestMeasureForContainerOrHostAtTime(HOST_CPU_QUERY_TEMPLATE, HostCpuMeasurement::class.java as Class<GenericMeasurement>,
+                hostName, timeMsec)
+    }
+
+    private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
-        val query = queryTemplate.format(containerId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
+        val query = queryTemplate.format(containerOrHostId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
         _log.debug("Querying InfluxDB for ${mappingClass.name} via query $query")
         val dbQuery = Query(query, dbName)
         val result = _influxdb.query(dbQuery)
@@ -101,6 +106,12 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
                 "from docker_container_net " +
                 "where container_id = '%s' " +
+                "and time > %d - %s and time < %d + %s " +
+                "order by time"
+
+        val HOST_CPU_QUERY_TEMPLATE = "select time, host, time_active from cpu " +
+                "where host = '%s' " +
+                "and cpu = 'cpu-total' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
