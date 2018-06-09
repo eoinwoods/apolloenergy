@@ -17,7 +17,7 @@ class TestTraceCalculator {
         val containerId = "abcdefghi123"
         val emptyNetInfo = StubNetInfo(hashMapOf(networkAddr to containerId),
                 hashMapOf(containerId to networkAddr))
-        val emptyResourceUsageManager = StubResourceUsageManager(hashMapOf(containerId to ResourceUsage(1, 2, 3, 4)))
+        val emptyResourceUsageManager = StubResourceUsageManager(hashMapOf(containerId to ResourceUsage(1, 2, 3, 4)), hashMapOf())
         val nullTrace = Trace(setOf(Span("54C92796854B15C8","54C92796854B15C8", "192.168.1.2",baseTime+100000, baseTime+110000)))
         val tc = TraceCalculator(nullTrace, emptyResourceUsageManager, emptyNetInfo)
         val resUsage = tc.calculateTotalResourceUsage()

@@ -1,5 +1,6 @@
 package com.artechra.apollo.resusage
 
+import com.artechra.apollo.types.HostResourceMeasurement
 import com.artechra.apollo.types.ResourceUsage
 import com.artechra.apollo.types.ResourceUsageMeasurement
 import com.artechra.apollo.types.Util
@@ -30,6 +31,13 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         return ResourceUsageMeasurement(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
     }
 
+    override fun getHostResourceUsage(hostName: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
+        _log.info("Get resource usage for host $hostName from $startTimeMsec to $endTimeMsec")
+        val cpuUsageMsec = getHostCpuUsageMsec(hostName, startTimeMsec, endTimeMsec)
+        assert(cpuUsageMsec >= 0)
+        return HostResourceMeasurement(startTimeMsec, hostName, cpuUsageMsec)
+    }
+
     private fun getCpuUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
         val startTimeEstimate = influxdb.getBestCpuMeasureForTime(containerId, startTimeMsec)
         val endTimeEstimate = influxdb.getBestCpuMeasureForTime(containerId, endTimeMsec)
@@ -56,6 +64,12 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
     private fun getNetIo(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
         val startTimeEstimate = influxdb.getBestNetIoMeasureForTime(containerId, startTimeMsec)
         val endTimeEstimate = influxdb.getBestNetIoMeasureForTime(containerId, endTimeMsec)
+        return endTimeEstimate - startTimeEstimate
+    }
+
+    private fun getHostCpuUsageMsec(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
+        val startTimeEstimate = influxdb.getBestHostCpuMsecMeasureForTime(hostName, startTimeMsec)
+        val endTimeEstimate = influxdb.getBestHostCpuMsecMeasureForTime(hostName, endTimeMsec)
         return endTimeEstimate - startTimeEstimate
     }
 }
