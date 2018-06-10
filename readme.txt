@@ -1,2 +1,13 @@
-This is the master branch for v2 - needs refactoring and modifications
+Apollo Energy Calculator - v2
+-----------------------------
+
+Implementation of the "Apollo" energy estimation approach as a command
+line Kotlin program, using Zipkin traces in MySQL and host and Docker
+container usage statistics in InfluxDB.
+
+./gradlew clean test
+./gradlew shadowJar # to create single JAR in build/libs
+./run.sh # to run with default parameters
+
+Configuration in etc/apollo.properties
 
