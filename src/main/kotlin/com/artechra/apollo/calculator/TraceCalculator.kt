@@ -5,13 +5,16 @@ import com.artechra.apollo.resusage.ResourceUsageManager
 import com.artechra.apollo.types.*
 import kotlin.math.roundToLong
 
-class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageManager, val networkMap : NetInfo) {
+class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMap : NetInfo) {
     val containers = networkMap.getContainersForAddresses()
 
-    fun calculateEnergyEstimateForTrace(t : Trace) : Long {
+    fun calculateCpuMsecAndEnergyJoulesEstimateForTrace(t : Trace) : EnergyEstimate {
         var estimateJoules = 0L
+        var totalCpuMsec = 0L
         for (span in t.spans) {
             val containerUsage = calculateResourceUsageForSpan(span)
+            totalCpuMsec += containerUsage.usage.totalCpuMsec
+
             val hostCpuMsecUsage = getHostResourceUsageForSpan(span)
             val hostEnergyUsage = getEnergyJoulesForHost(span.networkAddress, span.startTimeMsec, span.endTimeMsec)
 
@@ -21,7 +24,7 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
             val spanEnergyJoules = hostEnergyUsage * containerUsagePercentage
             estimateJoules += spanEnergyJoules.roundToLong()
         }
-        return estimateJoules
+        return EnergyEstimate(totalCpuMsec, estimateJoules)
     }
 
     fun calculateResourceUsageForSpan(s : Span) : ResourceUsageMeasurement {
@@ -38,28 +41,7 @@ class TraceCalculator(val trace : Trace, val resourceUsageMgr : ResourceUsageMan
     }
 
     fun getEnergyJoulesForHost(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
+        // TODO - to be implemented as simulated energy data access
         return 100
     }
-
-    fun calculateTotalResourceUsage() : ResourceUsage {
-        var totalCpuTicks    = 0L
-        var totalMemoryBytes = 0L
-        var totalDiskIoBytes = 0L
-        var totalNetIoBytes  = 0L
-
-        val containers = networkMap.getContainersForAddresses()
-        for (span in trace.spans) {
-            val containerId =
-                    containers.get(span.networkAddress) ?:
-                            throw IllegalStateException("No container found for ipAddr " + span.networkAddress + " in span " + span.spanId)
-            val resourceMetrics =
-                    resourceUsageMgr.getResourceUsage(containerId, span.startTimeMsec, span.endTimeMsec)
-            totalCpuTicks    += resourceMetrics.usage.totalCpuMsec
-            totalMemoryBytes    += resourceMetrics.usage.totalMemoryBytes
-            totalDiskIoBytes += resourceMetrics.usage.totalDiskIoBytes
-            totalNetIoBytes  += resourceMetrics.usage.totalNetIoBytes
-        }
-        return ResourceUsage(totalCpuTicks, totalMemoryBytes, totalDiskIoBytes, totalNetIoBytes)
-    }
-
 }
