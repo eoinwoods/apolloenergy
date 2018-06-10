@@ -14,7 +14,7 @@ class TestCpuMeasurement {
         val m = CpuMeasurement()
         assertNull(m.timeMillis)
         assertNull(m.containerName)
-        assertEquals(0, m.cpuUsage)
+        assertEquals(0, m.cpuUsageNsec)
     }
 
     @Test
@@ -24,6 +24,16 @@ class TestCpuMeasurement {
         val m = CpuMeasurement(nowMillis, "c1", 10000)
         assertEquals(nowMillis, m.timeMillis.toEpochMilli())
         assertEquals("c1", m.containerName)
-        assertEquals(10000, m.cpuUsage)
+        assertEquals(10000, m.cpuUsageNsec)
+    }
+
+    @Test
+    fun testThatNsecToMsecConverstionWorks() {
+        val now = System.nanoTime()
+        val nowMillis = Util.nanosecToMSec(now)
+        val m = CpuMeasurement(nowMillis, "c1", 1307154115)
+        assertEquals(nowMillis, m.timeMillis.toEpochMilli())
+        assertEquals("c1", m.containerName)
+        assertEquals(1307, m.cpuUsageMsec)
     }
 }

@@ -51,7 +51,7 @@ class TestInfluxDbDecorator {
         LOG.info("cpuList=" + cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
-        assertEquals(1307154115, cpuList[0].cpuUsage)
+        assertEquals(1307154115, cpuList[0].cpuUsageNsec)
         assertEquals(1528144131000, cpuList[0].timeMillis)
     }
 
@@ -115,9 +115,9 @@ class TestInfluxDbDecorator {
 
     @Test
     fun testThatCpuUsageIsReturned() {
-        val cpuUsage = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
+        val cpuUsageMsec = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(30944398036, cpuUsage)
+        assertEquals(30944, cpuUsageMsec)
     }
 
     @Test
