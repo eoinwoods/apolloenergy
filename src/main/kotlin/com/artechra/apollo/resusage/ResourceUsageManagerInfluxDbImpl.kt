@@ -13,8 +13,8 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
     override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMeasurement {
 
         _log.info("Get resource usage for container $containerId from $startTimeMsec to $endTimeMsec")
-        val cpuUsage = getCpuUsage(containerId, startTimeMsec, endTimeMsec)
-        assert(cpuUsage >= 0)
+        val cpuUsageMsec = getCpuUsageMsec(containerId, startTimeMsec, endTimeMsec)
+        assert(cpuUsageMsec >= 0)
         val memUsage = getMemUsage(containerId, startTimeMsec, endTimeMsec)
         assert(memUsage >= 0)
         val diskIo   = getDiskIo(containerId, startTimeMsec, endTimeMsec)
@@ -25,10 +25,10 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         // and get zero back from all of the queries but in practice it seems to be very unlikely as
         // generally no usage means no record is written.  Hence if everything is zero we've probably
         // asked the wrong question (i.e. an invalid container/time combination)
-        if (cpuUsage == 0L && memUsage == 0L && diskIo == 0L && netIo == 0L) {
+        if (cpuUsageMsec == 0L && memUsage == 0L && diskIo == 0L && netIo == 0L) {
             throw IllegalStateException("Found zero cpu, memory, diskio and netio for container $containerId between $startTimeMsec and $endTimeMsec")
         }
-        return ResourceUsageMeasurement(startTimeMsec, containerId, ResourceUsage(cpuUsage, memUsage, diskIo, netIo))
+        return ResourceUsageMeasurement(startTimeMsec, containerId, ResourceUsage(cpuUsageMsec, memUsage, diskIo, netIo))
     }
 
     override fun getHostResourceUsage(hostName: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
@@ -38,7 +38,7 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         return HostResourceMeasurement(startTimeMsec, hostName, cpuUsageMsec)
     }
 
-    private fun getCpuUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
+    private fun getCpuUsageMsec(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
         val startTimeEstimate = influxdb.getBestCpuMeasureForTime(containerId, startTimeMsec)
         val endTimeEstimate = influxdb.getBestCpuMeasureForTime(containerId, endTimeMsec)
         return endTimeEstimate - startTimeEstimate
