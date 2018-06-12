@@ -15,14 +15,17 @@ public class CpuMeasurement implements GenericMeasurement {
     Instant timeMillis;
     @Column(name = "container_name", tag = true)
     String containerName ;
+    @Column(name = "host", tag = true)
+    String hostName ;
     @Column(name = "usage_total")
     long cpuUsageNsec;
 
     public CpuMeasurement() {}
 
-    public CpuMeasurement(long _timeMillis, String _containerName, long _cpuUsageNsec) {
+    public CpuMeasurement(long _timeMillis, String _containerName, String _hostName, long _cpuUsageNsec) {
         timeMillis = Instant.ofEpochMilli(_timeMillis);
         containerName = _containerName ;
+        hostName = _hostName ;
         cpuUsageNsec = _cpuUsageNsec ;
     }
 
@@ -33,6 +36,8 @@ public class CpuMeasurement implements GenericMeasurement {
     public String getContainerName() {
         return containerName ;
     }
+
+    public String getHostName() { return hostName ; }
 
     public long getCpuUsageNsec() {
         return cpuUsageNsec ;
@@ -52,8 +57,9 @@ public class CpuMeasurement implements GenericMeasurement {
         return "CpuMeasurement{" +
                 "timeMillis=" + timeMillis.getEpochSecond() +
                 ", containerName='" + containerName + '\'' +
-                ", cpuUsageNsec=" + cpuUsageNsec +
-                ", cpuUsageMsec=" + getCpuUsageMsec() +
+                ", hostName='"      + hostName + '\'' +
+                ", cpuUsageNsec="   + cpuUsageNsec +
+                ", cpuUsageMsec="   + getCpuUsageMsec() +
                 '}';
     }
 
@@ -65,11 +71,12 @@ public class CpuMeasurement implements GenericMeasurement {
         final CpuMeasurement that = (CpuMeasurement) o;
         return Objects.equals(timeMillis, that.timeMillis) &&
                 Objects.equals(containerName, that.containerName) &&
+                Objects.equals(hostName, that.hostName) &&
                 Objects.equals(cpuUsageNsec, that.cpuUsageNsec);
     }
 
     @Override public int hashCode() {
 
-        return Objects.hash(timeMillis, containerName, cpuUsageNsec);
+        return Objects.hash(timeMillis, containerName, hostName, cpuUsageNsec);
     }
 }

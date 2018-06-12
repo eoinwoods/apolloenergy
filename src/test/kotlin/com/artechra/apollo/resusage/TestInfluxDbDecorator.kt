@@ -10,10 +10,10 @@ class TestInfluxDbDecorator {
 
         // 4 intervals 10 sec apart
         // example data taken from Docker via data set 3
-        ret.add(CpuMeasurement(1515237422000, "gateway", 30305812441))
-        ret.add(CpuMeasurement(1515237432000, "gateway", 30318691887))
-        ret.add(CpuMeasurement(1515237442000, "gateway", 32183833555))
-        ret.add(CpuMeasurement(1515237452000, "gateway", 32231405970))
+        ret.add(CpuMeasurement(1515237422000, "gateway", "host1", 30305812441))
+        ret.add(CpuMeasurement(1515237432000, "gateway", "host1", 30318691887))
+        ret.add(CpuMeasurement(1515237442000, "gateway", "host1", 32183833555))
+        ret.add(CpuMeasurement(1515237452000, "gateway", "host1", 32231405970))
 
         return ret
     }

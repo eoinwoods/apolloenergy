@@ -43,7 +43,7 @@ class TestInfluxDbDecorator {
 
     @Test
     fun testThatCpuMeasurementMappingIsCorrect() {
-        val query = Query("SELECT time, container_name, usage_total FROM docker_container_cpu ORDER BY time LIMIT 1", DATABASE)
+        val query = Query("SELECT time, container_name, host, usage_total FROM docker_container_cpu ORDER BY time LIMIT 1", DATABASE)
         val dbconn = getDbConn().getInfluxDbConnection()
         val result = dbconn.query(query)
         val resultMapper = InfluxDBResultMapper()
@@ -51,6 +51,7 @@ class TestInfluxDbDecorator {
         LOG.info("cpuList=" + cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
+        assertEquals(HOST_NAME, cpuList[0].hostName)
         assertEquals(9254878795, cpuList[0].cpuUsageNsec)
         assertEquals(1528650681000, cpuList[0].timeMillis)
     }
