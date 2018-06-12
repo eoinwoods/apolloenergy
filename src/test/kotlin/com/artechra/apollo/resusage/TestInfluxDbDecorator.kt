@@ -45,4 +45,17 @@ class TestInfluxDbDecorator {
         assertEquals(1515237452000, after.getTimeMillis())
     }
 
+    @Test
+    fun testThatTwoItemListFindsBestValue() {
+        val cpuMeasurements = getCpuMeasurements()
+        cpuMeasurements.removeAt(cpuMeasurements.size - 1)
+        cpuMeasurements.removeAt(0)
+
+        assertEquals(2, cpuMeasurements.size)
+        val(before, after) =
+                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237434000)
+        assertEquals(1515237432000, before.timeMillis)
+        assertEquals(1515237442000, after.timeMillis)
+    }
+
 }

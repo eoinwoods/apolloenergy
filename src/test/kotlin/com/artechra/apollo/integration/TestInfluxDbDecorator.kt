@@ -51,8 +51,8 @@ class TestInfluxDbDecorator {
         LOG.info("cpuList=" + cpuList[0])
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
-        assertEquals(1307154115, cpuList[0].cpuUsageNsec)
-        assertEquals(1528144131000, cpuList[0].timeMillis)
+        assertEquals(9254878795, cpuList[0].cpuUsageNsec)
+        assertEquals(1528650681000, cpuList[0].timeMillis)
     }
 
     @Test
@@ -64,9 +64,9 @@ class TestInfluxDbDecorator {
         val hostCpuList = resultMapper.toPOJO(result, HostCpuMeasurement::class.java)
         LOG.info("hostCpuList=" + hostCpuList[0])
         assertEquals(1, hostCpuList.size)
-        assertEquals("8b9e3f7bd3c5", hostCpuList[0].hostName)
-        assertEquals(43260, hostCpuList[0].cpuUsageMsec)
-        assertEquals(1528144130000, hostCpuList[0].timeMillis)
+        assertEquals(HOST_NAME, hostCpuList[0].hostName)
+        assertEquals(294400, hostCpuList[0].cpuUsageMsec)
+        assertEquals(1528650680000, hostCpuList[0].timeMillis)
     }
 
     @Test
@@ -79,8 +79,8 @@ class TestInfluxDbDecorator {
         assertEquals(1, memList.size)
         LOG.info("memList: " + memList[0])
         assertEquals("cpuhog", memList[0].containerName)
-        assertEquals(87982080, memList[0].memUsage)
-        assertEquals(1528144131000, memList[0].timeMillis)
+        assertEquals(413880320, memList[0].memUsage)
+        assertEquals(1528650681000, memList[0].timeMillis)
     }
 
     @Test
@@ -92,9 +92,9 @@ class TestInfluxDbDecorator {
         val diskIoList = resultMapper.toPOJO(result, DiskIoMeasurement::class.java)
         assertEquals(1, diskIoList.size)
         LOG.info("diskIoList=" + diskIoList[0])
-        assertEquals("cpuhog", diskIoList[0].containerName)
-        assertEquals(8343552, diskIoList[0].diskIoBytes)
-        assertEquals(1528144131000, diskIoList[0].timeMillis)
+        assertEquals("influxdb", diskIoList[0].containerName)
+        assertEquals(94208, diskIoList[0].diskIoBytes)
+        assertEquals(1528650681000, diskIoList[0].timeMillis)
     }
 
     @Test
@@ -108,43 +108,43 @@ class TestInfluxDbDecorator {
         assertEquals(1, netIoList.size)
         LOG.info("netIoList=" + netIoList[0])
         assertEquals("influxdb", netIoList[0].containerName)
-        assertEquals(4763, netIoList[0].rxBytes)
-        assertEquals(1418, netIoList[0].txBytes)
-        assertEquals(1528144131000, netIoList[0].timeMillis)
+        assertEquals(5503, netIoList[0].rxBytes)
+        assertEquals(1460, netIoList[0].txBytes)
+        assertEquals(1528650681000, netIoList[0].timeMillis)
     }
 
     @Test
     fun testThatCpuUsageIsReturned() {
         val cpuUsageMsec = getDbConn().getBestCpuMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(30944, cpuUsageMsec)
+        assertEquals(31949, cpuUsageMsec)
     }
 
     @Test
     fun testThatHostCpuUsageIsReturned() {
         val hostCpuMsecs = getDbConn().getBestHostCpuMsecMeasureForTime(HOST_NAME, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(197566, hostCpuMsecs)
+        assertEquals(171326, hostCpuMsecs)
     }
 
     @Test
     fun testThatMemUsageIsReturned() {
         val memUsage = getDbConn().getBestMemMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(931714662, memUsage)
+        assertEquals(980621722, memUsage)
     }
 
     @Test
     fun testThatDiskIoUsageIsReturned() {
         val diskIoUsage = getDbConn().getBestDiskIoMeasureForTime(DISKIO_CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(19962675, diskIoUsage)
+        assertEquals(21189427, diskIoUsage)
     }
 
     @Test
     fun testThatNetIoUsageIsReturned() {
         val netIoUsage = getDbConn().getBestNetIoMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
-        assertEquals(6837, netIoUsage)
+        assertEquals(788, netIoUsage)
     }
 }

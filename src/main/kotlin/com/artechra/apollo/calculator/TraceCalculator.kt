@@ -3,9 +3,12 @@ package com.artechra.apollo.calculator
 import com.artechra.apollo.netinfo.NetInfo
 import com.artechra.apollo.resusage.ResourceUsageManager
 import com.artechra.apollo.types.*
+import org.apache.logging.log4j.LogManager
 import kotlin.math.roundToLong
 
 class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMap : NetInfo) {
+    val _log = LogManager.getLogger(TraceCalculator::class.qualifiedName)
+
     val containers = networkMap.getContainersForAddresses()
 
     fun calculateCpuMsecAndEnergyJoulesEstimateForTrace(t : Trace) : EnergyEstimate {
@@ -22,6 +25,7 @@ class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMa
             assert(hostCpuMsecUsage.cpuUsageMsec > 0)
             val containerUsagePercentage = containerUsage.usage.totalCpuMsec / (hostCpuMsecUsage.cpuUsageMsec*1.0)
             val spanEnergyJoules = hostEnergyUsage * containerUsagePercentage
+            _log.debug("Span ${span.spanId}: cpuMsec=${containerUsage.usage.totalCpuMsec}; hostCpuMsec=${hostCpuMsecUsage.cpuUsageMsec}; hostEnergyJ=$hostEnergyUsage; usage%=$containerUsagePercentage spanEnergyJ=$spanEnergyJoules")
             estimateJoules += spanEnergyJoules.roundToLong()
         }
         return EnergyEstimate(totalCpuMsec, estimateJoules)

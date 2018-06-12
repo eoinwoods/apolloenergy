@@ -34,7 +34,9 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
     override fun getHostResourceUsage(hostName: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
         _log.info("Get resource usage for host $hostName from $startTimeMsec to $endTimeMsec")
         val cpuUsageMsec = getHostCpuUsageMsec(hostName, startTimeMsec, endTimeMsec)
-        assert(cpuUsageMsec >= 0)
+        if (cpuUsageMsec <= 0) {
+            throw IllegalStateException("No host CPU usage for host $hostName between $startTimeMsec and $endTimeMsec")
+        }
         return HostResourceMeasurement(startTimeMsec, hostName, cpuUsageMsec)
     }
 
