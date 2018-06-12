@@ -23,7 +23,7 @@ class TestTraceCalculator {
         val tc = TraceCalculator(testResourceUsageManager, testNetInfo)
         val estimate = tc.calculateCpuMsecAndEnergyJoulesEstimateForTrace(trivialTrace) ;
         assertEquals(10, estimate.energyUsageJoules)
-        assertEquals(12, estimate.totalCpu)
+        assertEquals(12, estimate.totalCpuMsec)
 
     }
 }
