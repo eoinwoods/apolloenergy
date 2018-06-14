@@ -5,5 +5,5 @@ import com.artechra.apollo.types.ResourceUsageMeasurement
 
 interface ResourceUsageManager {
     fun getResourceUsage(containerId : String, startTimeMsec : Long, endTimeMsec : Long) : ResourceUsageMeasurement
-    fun getHostResourceUsage(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : HostResourceMeasurement
+    fun getHostResourceUsageForContainer(containerId : String, startTimeMsec : Long, endTimeMsec : Long) : HostResourceMeasurement
 }

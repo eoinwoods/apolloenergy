@@ -81,7 +81,6 @@ class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: Strin
             throw IllegalStateException("Could not find CPU measurements to extract host from for container $containerId at time $timeMsec")
         }
         val cpuMeasurement = cpuMeasures[0] as CpuMeasurement
-        println("*** $cpuMeasurement")
         return cpuMeasurement.hostName
     }
 

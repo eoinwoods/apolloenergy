@@ -5,7 +5,7 @@ import com.artechra.apollo.types.ResourceUsage
 import com.artechra.apollo.types.ResourceUsageMeasurement
 
 class ResourceUsageManagerDefaultImplementation : ResourceUsageManager {
-    override fun getHostResourceUsage(hostName: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
+    override fun getHostResourceUsageForContainer(containerId: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
         return HostResourceMeasurement(1234567890, "host1", 43250)
     }
 

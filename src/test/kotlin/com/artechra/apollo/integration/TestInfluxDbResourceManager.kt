@@ -44,7 +44,7 @@ class TestInfluxDbResourceManager {
 
     @Test
     fun testGetResourceUsageForHostInTestDatasetReturnsValidValues() {
-        val resUsage = resUsageManager.getHostResourceUsage(IntegrationTestShared.HOST_NAME,
+        val resUsage = resUsageManager.getHostResourceUsageForContainer(IntegrationTestShared.GATEWAY_CONTAINER_ID,
                 IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
         println("REUSAGE: ${resUsage}")
         assertTrue(resUsage.cpuUsageMsec > 0, "No CPU reported")
@@ -52,7 +52,7 @@ class TestInfluxDbResourceManager {
 
     @Test(expected = IllegalStateException::class)
     fun testGetResourceUsageForNonExistentHostThrowsException() {
-        val resUsage = resUsageManager.getHostResourceUsage("NO_SUCH_HOST",
+        val resUsage = resUsageManager.getHostResourceUsageForContainer("NO_SUCH_CONTAINER",
                 IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
     }
 

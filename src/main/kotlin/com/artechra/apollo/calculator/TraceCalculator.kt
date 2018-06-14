@@ -31,21 +31,27 @@ class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMa
         return EnergyEstimate(totalCpuMsec, estimateJoules)
     }
 
-    fun calculateResourceUsageForSpan(s : Span) : ResourceUsageMeasurement {
-        val containerId =
-                containers.get(s.networkAddress)
-                        ?: throw IllegalStateException("No container found for ipAddr " + s.networkAddress + " in span " + s.spanId)
+    private fun calculateResourceUsageForSpan(s : Span) : ResourceUsageMeasurement {
+        val containerId = getContainerForNetworkAddress(s.networkAddress)
         val resourceMetrics =
                 resourceUsageMgr.getResourceUsage(containerId, s.startTimeMsec, s.endTimeMsec)
         return resourceMetrics
     }
 
-    fun getHostResourceUsageForSpan(s : Span) : HostResourceMeasurement {
-        return resourceUsageMgr.getHostResourceUsage(s.networkAddress, s.startTimeMsec, s.endTimeMsec)
+    private fun getHostResourceUsageForSpan(s : Span) : HostResourceMeasurement {
+        val containerId = getContainerForNetworkAddress(s.networkAddress)
+        return resourceUsageMgr.getHostResourceUsageForContainer(containerId, s.startTimeMsec, s.endTimeMsec)
     }
 
-    fun getEnergyJoulesForHost(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
+    private fun getEnergyJoulesForHost(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
         // TODO - to be implemented as simulated energy data access
         return 100
+    }
+
+    private fun getContainerForNetworkAddress(address : String) : String {
+        val containerId =
+                containers.get(address)
+                        ?: throw IllegalStateException("No container found for ipAddr " + address)
+        return containerId
     }
 }
