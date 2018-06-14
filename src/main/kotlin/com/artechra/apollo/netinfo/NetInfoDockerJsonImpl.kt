@@ -6,14 +6,14 @@ import com.beust.klaxon.Parser
 import java.io.File
 
 class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
-    private val containerToAddress: MutableMap<String, String> = HashMap<String, String>()
-    private val addressToContainer: MutableMap<String, String> = HashMap<String, String>()
-    private val containerIdToName: MutableMap<String, String> = HashMap<String, String>()
-    private val containerNameToId: MutableMap<String, String> = HashMap<String, String>()
+    private val containerToAddress: MutableMap<String, String> = HashMap()
+    private val addressToContainer: MutableMap<String, String> = HashMap()
+    private val containerIdToName: MutableMap<String, String> = HashMap()
+    private val containerNameToId: MutableMap<String, String> = HashMap()
 
     init {
         if (!File(netInfoFileName).canRead()) {
-            throw IllegalArgumentException("Could not open file ${netInfoFileName}")
+            throw IllegalArgumentException("Could not open file $netInfoFileName")
         }
 
         val jsonData: JsonArray<JsonObject>? = Parser().parse(netInfoFileName) as? JsonArray<JsonObject>
@@ -26,18 +26,18 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
                 val containerName = containerData["Name"] as String
                 val netAddr = cidrAddressToNetworkAddress(containerData["IPv4Address"] as String)
 
-                containerIdToName.put(containerId, containerName)
-                containerNameToId.put(containerName, containerId)
-                containerToAddress.put(containerId, netAddr)
-                addressToContainer.put(netAddr, containerId)
+                containerIdToName[containerId]   = containerName
+                containerNameToId[containerName] = containerId
+                containerToAddress[containerId]  = netAddr
+                addressToContainer[netAddr]      = containerId
             }
         }
     }
 
     fun getNumberOfContainers() : Int {
-        if (!containerIdToName.size.equals(addressToContainer.size) ||
-                !containerIdToName.size.equals(containerToAddress.size)) {
-            throw IllegalStateException("NetInfo maps are different sizes ${containerToAddress.size} != ${containerToAddress} != ${addressToContainer.size}")
+        if (containerIdToName.size != addressToContainer.size ||
+                containerIdToName.size != containerToAddress.size) {
+            throw IllegalStateException("NetInfo maps are different sizes ${containerToAddress.size} != $containerToAddress != ${addressToContainer.size}")
         }
         return containerIdToName.size
     }
