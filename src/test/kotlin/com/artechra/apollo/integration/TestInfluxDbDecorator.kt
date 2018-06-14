@@ -48,7 +48,7 @@ class TestInfluxDbDecorator {
         val result = dbconn.query(query)
         val resultMapper = InfluxDBResultMapper()
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java)
-        LOG.info("cpuList=" + cpuList[0])
+        LOG.info("cpuList=$cpuList")
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
         assertEquals(HOST_NAME, cpuList[0].hostName)
@@ -147,5 +147,18 @@ class TestInfluxDbDecorator {
         val netIoUsage = getDbConn().getBestNetIoMeasureForTime(CONTAINER_ID, SPAN_TIME_MS)
         // Manually calculated value
         assertEquals(788, netIoUsage)
+    }
+
+    @Test
+    fun testThatHostIsReturnedForContainer() {
+        val host = getDbConn().getHostForContainerAtTime(CONTAINER_ID, SPAN_TIME_MS)
+        assertEquals(HOST_NAME, host)
+
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testThatExceptionThrownForMissingHostForContainer() {
+        val host = getDbConn().getHostForContainerAtTime("NO_SUCH_ID", SPAN_TIME_MS)
+        assertEquals(HOST_NAME, host)
     }
 }

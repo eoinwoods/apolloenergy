@@ -6,8 +6,9 @@ import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
+import kotlin.reflect.KClass
 
-class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, private val dbUser: String? = null, private val dbPassword: String? = null) {
+class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: String? = null, dbPassword: String? = null) {
 
     private val _log = LogManager.getLogger(this.javaClass.name)
 
@@ -30,7 +31,9 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and cpu = 'cpu-total' and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerOrHostAtTime(CPU_QUERY_TEMPLATE, CpuMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = CpuMeasurement::class as KClass<GenericMeasurement>
+        return getBestMeasureForContainerOrHostAtTime(CPU_QUERY_TEMPLATE, mappingClass, containerId, timeMsec)
     }
 
     fun getBestMemMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -38,7 +41,9 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerOrHostAtTime(MEM_QUERY_TEMPLATE, MemMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = MemMeasurement::class as KClass<GenericMeasurement>
+        return getBestMeasureForContainerOrHostAtTime(MEM_QUERY_TEMPLATE, mappingClass, containerId, timeMsec)
     }
 
     fun getBestDiskIoMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -46,7 +51,9 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = 'cd299a7d035895a05937c72ce127459d613ba028e2bb33218892cc3cd201301c'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerOrHostAtTime(DISKIO_QUERY_TEMPLATE, DiskIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = DiskIoMeasurement::class as KClass<GenericMeasurement>
+        return getBestMeasureForContainerOrHostAtTime(DISKIO_QUERY_TEMPLATE, mappingClass, containerId, timeMsec)
     }
 
     fun getBestNetIoMeasureForTime(containerId: String, timeMsec: Long): Long {
@@ -54,15 +61,38 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
         // where container_id = '5843205e6e17aaefcae8be0f6109baf1334c6b55a051f43e1dd4e959492aa228'
         // and time > 1515237435811000000 - 1m and time < 1515237438736327000 + 1m
 
-        return getBestMeasureForContainerOrHostAtTime(NETIO_QUERY_TEMPLATE, NetIoMeasurement::class.java as Class<GenericMeasurement>, containerId, timeMsec)
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = NetIoMeasurement::class as KClass<GenericMeasurement>
+        return getBestMeasureForContainerOrHostAtTime(NETIO_QUERY_TEMPLATE, mappingClass, containerId, timeMsec)
     }
 
     fun getBestHostCpuMsecMeasureForTime(hostName: String, timeMsec: Long) : Long {
-        return getBestMeasureForContainerOrHostAtTime(HOST_CPU_QUERY_TEMPLATE, HostCpuMeasurement::class.java as Class<GenericMeasurement>,
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = HostCpuMeasurement::class as KClass<GenericMeasurement>
+        return getBestMeasureForContainerOrHostAtTime(HOST_CPU_QUERY_TEMPLATE, mappingClass,
                 hostName, timeMsec)
     }
 
-    private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : Class<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
+    fun getHostForContainerAtTime(containerId: String, timeMsec: Long) : String {
+        @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
+        val mappingClass = CpuMeasurement::class as KClass<GenericMeasurement>
+        val cpuMeasures = runInfluxDbQueryForMeasurement(CPU_QUERY_TEMPLATE, mappingClass, containerId, timeMsec )
+        if (cpuMeasures.size < 1) {
+            throw IllegalStateException("Could not find CPU measurements to extract host from for container $containerId at time $timeMsec")
+        }
+        val cpuMeasurement = cpuMeasures[0] as CpuMeasurement
+        println("*** $cpuMeasurement")
+        return cpuMeasurement.hostName
+    }
+
+    private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
+        val valueList = runInfluxDbQueryForMeasurement(queryTemplate, mappingClass, containerOrHostId, timeMsec)
+
+        return findBestValueForPointFromList(valueList.toList(), timeMsec)
+    }
+
+    private fun runInfluxDbQueryForMeasurement(queryTemplate: String, mappingKClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): List<GenericMeasurement> {
+        val mappingClass = mappingKClass.java
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerOrHostId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
         _log.debug("Querying InfluxDB for ${mappingClass.name} via query $query")
@@ -71,9 +101,9 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
 
         val resultMapper = InfluxDBResultMapper()
         val valueList = resultMapper.toPOJO(result, mappingClass)
-
-        return findBestValueForPointFromList(valueList.toList(), timeMsec)
+        return valueList
     }
+
 
     fun close() {
         this._influxdb.close()
@@ -84,7 +114,7 @@ class InfluxDbDecorator(private val dbUrl: String, private val dbName: String, p
 
         val QUERY_WINDOW = "20s"
 
-        val CPU_QUERY_TEMPLATE = "select time, container_name, usage_total " +
+        val CPU_QUERY_TEMPLATE = "select time, container_name, host, usage_total " +
                 "from docker_container_cpu " +
                 "where cpu = 'cpu-total' " +
                 "and container_id = '%s' " +
