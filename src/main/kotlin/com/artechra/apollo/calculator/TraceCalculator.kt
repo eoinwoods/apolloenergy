@@ -6,10 +6,10 @@ import com.artechra.apollo.types.*
 import org.apache.logging.log4j.LogManager
 import kotlin.math.roundToLong
 
-class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMap : NetInfo) {
-    val _log = LogManager.getLogger(TraceCalculator::class.qualifiedName)
+class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager, networkMap : NetInfo) {
+    private val _log = LogManager.getLogger(TraceCalculator::class.qualifiedName)
 
-    val containers = networkMap.getContainersForAddresses()
+    private val containers = networkMap.getContainersForAddresses()
 
     fun calculateCpuMsecAndEnergyJoulesEstimateForTrace(t : Trace) : EnergyEstimate {
         var estimateJoules = 0L
@@ -33,9 +33,7 @@ class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMa
 
     private fun calculateResourceUsageForSpan(s : Span) : ResourceUsageMeasurement {
         val containerId = getContainerForNetworkAddress(s.networkAddress)
-        val resourceMetrics =
-                resourceUsageMgr.getResourceUsage(containerId, s.startTimeMsec, s.endTimeMsec)
-        return resourceMetrics
+        return resourceUsageMgr.getResourceUsage(containerId, s.startTimeMsec, s.endTimeMsec)
     }
 
     private fun getHostResourceUsageForSpan(s : Span) : HostResourceMeasurement {
@@ -44,14 +42,13 @@ class TraceCalculator(val resourceUsageMgr : ResourceUsageManager, val networkMa
     }
 
     private fun getEnergyJoulesForHost(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
+        println("getEnergyForHost($hostName, $startTimeMsec, $endTimeMsec)")
         // TODO - to be implemented as simulated energy data access
         return 100
     }
 
     private fun getContainerForNetworkAddress(address : String) : String {
-        val containerId =
-                containers.get(address)
-                        ?: throw IllegalStateException("No container found for ipAddr " + address)
-        return containerId
+        return containers[address]
+                        ?: throw IllegalStateException("No container found for ipAddr $address")
     }
 }
