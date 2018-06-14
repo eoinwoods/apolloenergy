@@ -36,9 +36,6 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         // startTimeMsec and endTimeMsec.  In this context where those times mark the start and end
         // of a tracing span, that is a reasonable assumption.  In other contexts it could be invalid.
         val hostName = influxdb.getHostForContainerAtTime(containerId, startTimeMsec)
-        if (hostName == null) {
-            throw IllegalStateException("Could not find host for container $containerId at time $startTimeMsec")
-        }
         _log.info("Get resource usage for host $hostName (via container $containerId) from $startTimeMsec to $endTimeMsec")
         val cpuUsageMsec = getHostCpuUsageMsec(hostName, startTimeMsec, endTimeMsec)
         if (cpuUsageMsec <= 0) {
