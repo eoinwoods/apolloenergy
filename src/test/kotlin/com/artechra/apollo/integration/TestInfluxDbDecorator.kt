@@ -161,4 +161,15 @@ class TestInfluxDbDecorator {
         val host = getDbConn().getHostForContainerAtTime("NO_SUCH_ID", SPAN_TIME_MS)
         assertEquals(HOST_NAME, host)
     }
+
+    @Test
+    fun testThatHostCpuCountIsReturned() {
+        val cpuCount = getDbConn().getHostCpuCount(HOST_NAME)
+        assertEquals(4, cpuCount)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testThatHostCpuCountForNonExistentHostThrowsException() {
+        getDbConn().getHostCpuCount("NO_SUCH_HOST")
+    }
 }

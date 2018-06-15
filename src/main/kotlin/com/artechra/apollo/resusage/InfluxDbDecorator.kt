@@ -84,6 +84,26 @@ class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: Strin
         return cpuMeasurement.hostName
     }
 
+    fun getHostCpuUtilisationDuringPeriod(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Double {
+        val hostCpuAtStart = getBestHostCpuMsecMeasureForTime(hostName, startTimeMsec)
+        val hostCpuAtEnd = getBestHostCpuMsecMeasureForTime(hostName, endTimeMsec)
+
+        return 0.0
+    }
+
+    fun getHostCpuCount(hostName : String) : Long {
+        val query = HOST_CPU_COUNT_QUERY_TEMPLATE.format(hostName)
+        _log.debug("Querying InfluxDB for host CPU count via query $query")
+        val dbQuery = Query(query, dbName)
+        val result = _influxdb.query(dbQuery)
+        val resultMapper = InfluxDBResultMapper()
+        val resultList = resultMapper.toPOJO(result, HostCpuCountMeasurement::class.java)
+        if (resultList.size != 1) {
+            throw IllegalStateException("No results returned for CPU count for host $hostName (count=${resultList.size})")
+        }
+        return resultList[0].cpuCount
+    }
+
     private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
         val valueList = runInfluxDbQueryForMeasurement(queryTemplate, mappingClass, containerOrHostId, timeMsec)
 
@@ -143,6 +163,9 @@ class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: Strin
                 "and cpu = 'cpu-total' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
+
+        val HOST_CPU_COUNT_QUERY_TEMPLATE = "select n_cpus from system " +
+                "where host = '%s' limit 1"
 
         fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
             // This state implies that we didn't get at least two rows back from the database
