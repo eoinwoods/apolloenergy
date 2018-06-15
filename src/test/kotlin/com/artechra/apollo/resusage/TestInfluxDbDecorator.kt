@@ -58,4 +58,11 @@ class TestInfluxDbDecorator {
         assertEquals(1515237442000, after.timeMillis)
     }
 
+    @Test
+    fun testThatCpuUtilisationCalculationReturnsCorrectPercentage() {
+        val utilisation = InfluxDbDecorator.calculateHostCpuUtilisation(1515237432000, 1515237442000,
+                10219360, 10259160, 4)
+        assertEquals(0.995, utilisation)
+    }
+
 }

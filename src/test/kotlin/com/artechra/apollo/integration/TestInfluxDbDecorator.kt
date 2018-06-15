@@ -6,6 +6,7 @@ import org.influxdb.impl.InfluxDBResultMapper
 import org.junit.*
 import java.util.logging.Logger
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 
 class TestInfluxDbDecorator {
@@ -171,5 +172,23 @@ class TestInfluxDbDecorator {
     @Test(expected = IllegalStateException::class)
     fun testThatHostCpuCountForNonExistentHostThrowsException() {
         getDbConn().getHostCpuCount("NO_SUCH_HOST")
+    }
+
+    @Test
+    fun testThatHostUtilisationIsCredible() {
+        val utilisation = getDbConn().getHostCpuUtilisationDuringPeriod(HOST_NAME,
+                IntegrationTestShared.SPAN_START_TIME_MS,
+                IntegrationTestShared.SPAN_END_TIME_MS)
+        // In the test data set, the host isn't busy at all, hence the
+        // utilisation is small (about 0.3%) hence the small numbers here
+        assertTrue(utilisation > 0.002 && utilisation < 0.004)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testThatHostUtilisationForNonExistentHostThrowsException() {
+        val utilisation = getDbConn().getHostCpuUtilisationDuringPeriod("NO_SUCH_HOST",
+                IntegrationTestShared.SPAN_START_TIME_MS,
+                IntegrationTestShared.SPAN_END_TIME_MS)
+
     }
 }

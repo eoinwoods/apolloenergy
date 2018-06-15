@@ -87,10 +87,14 @@ class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: Strin
     fun getHostCpuUtilisationDuringPeriod(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Double {
         val hostCpuAtStart = getBestHostCpuMsecMeasureForTime(hostName, startTimeMsec)
         val hostCpuAtEnd = getBestHostCpuMsecMeasureForTime(hostName, endTimeMsec)
+        val hostCpuCount = getHostCpuCount(hostName)
 
-        return 0.0
+        return calculateHostCpuUtilisation(startTimeMsec, endTimeMsec, hostCpuAtStart, hostCpuAtEnd, hostCpuCount)
     }
 
+    // This method doesn't take a time or time range.  The assumption is that hosts
+    // don't change their number of CPUs over time, so we just find the first item
+    // in the "system" measurement and extract the value from that row
     fun getHostCpuCount(hostName : String) : Long {
         val query = HOST_CPU_COUNT_QUERY_TEMPLATE.format(hostName)
         _log.debug("Querying InfluxDB for host CPU count via query $query")
@@ -209,5 +213,17 @@ class InfluxDbDecorator(dbUrl: String, private val dbName: String, dbUser: Strin
             val afterReturn: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
             return Pair(beforeReturn, afterReturn)
         }
+
+        fun calculateHostCpuUtilisation(startTimeMsec : Long, endTimeMsec: Long,
+                                        hostCpuMsecStart : Long, hostCpuMsecEnd : Long, cpuCount : Long) : Double {
+            val msecUsage = hostCpuMsecEnd - hostCpuMsecStart
+            val durationSec = Util.msecToSeconds(endTimeMsec) - Util.msecToSeconds(startTimeMsec)
+
+            val msecPerCpu = msecUsage / cpuCount
+            val msecPerCpuPerSec = msecPerCpu / durationSec
+
+            return msecPerCpuPerSec / 1000
+        }
+
     }
 }
