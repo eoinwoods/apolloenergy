@@ -1,7 +1,7 @@
 package com.artechra.apollo.integration
 
 import com.artechra.apollo.calculator.TraceCalculator
-import com.artechra.apollo.resusage.InfluxDbDecorator
+import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.stubs.StubNetInfo
 import com.artechra.apollo.types.Span
@@ -31,7 +31,7 @@ class TestTraceCalculatorWithDatabase {
         )
 
 
-        val dbconn = InfluxDbDecorator(IntegrationTestShared.INFLUX_URL, IntegrationTestShared.DB_NAME)
+        val dbconn = InfluxDbDecoratorImpl(IntegrationTestShared.INFLUX_URL, IntegrationTestShared.DB_NAME)
         val resUsageManager = ResourceUsageManagerInfluxDbImpl(dbconn)
         val stubNetInfo = StubNetInfo(containerNetworkMap.map{(k,v) -> v to k}.toMap(), containerNetworkMap)
         assertTrue(stubNetInfo.addrToContainerMap.keys.toTypedArray() contentEquals

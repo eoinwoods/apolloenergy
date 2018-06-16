@@ -22,7 +22,7 @@ class TestInfluxDbDecorator {
     fun testThatFindingBestPointInListFindsMidValue() {
         // findMeasurementsAroundPointInTime
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237437456)
+                InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237437456)
         assertEquals(1515237432000, before.getTimeMillis())
         assertEquals(1515237442000, after.getTimeMillis())
     }
@@ -31,7 +31,7 @@ class TestInfluxDbDecorator {
     fun testThatFindingBestPointInListFindsFirstValue() {
         // findMeasurementsAroundPointInTime
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237422000)
+                InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237422000)
         assertEquals(1515237422000, before.getTimeMillis())
         assertEquals(1515237432000, after.getTimeMillis())
     }
@@ -40,7 +40,7 @@ class TestInfluxDbDecorator {
     fun testThatFindingBestPointInListFindsLastValue() {
         // findMeasurementsAroundPointInTime
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237452000)
+                InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237452000)
         assertEquals(1515237442000, before.getTimeMillis())
         assertEquals(1515237452000, after.getTimeMillis())
     }
@@ -53,14 +53,14 @@ class TestInfluxDbDecorator {
 
         assertEquals(2, cpuMeasurements.size)
         val(before, after) =
-                InfluxDbDecorator.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237434000)
+                InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237434000)
         assertEquals(1515237432000, before.timeMillis)
         assertEquals(1515237442000, after.timeMillis)
     }
 
     @Test
     fun testThatCpuUtilisationCalculationReturnsCorrectPercentage() {
-        val utilisation = InfluxDbDecorator.calculateHostCpuUtilisation(1515237432000, 1515237442000,
+        val utilisation = InfluxDbDecoratorImpl.calculateHostCpuUtilisation(1515237432000, 1515237442000,
                 10219360, 10259160, 4)
         assertEquals(0.995, utilisation)
     }

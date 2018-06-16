@@ -1,6 +1,6 @@
 package com.artechra.apollo.integration
 
-import com.artechra.apollo.resusage.InfluxDbDecorator
+import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManager
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import org.junit.Test
@@ -15,7 +15,7 @@ class TestInfluxDbResourceManager {
     private val resUsageManager: ResourceUsageManager
 
     init {
-        val dbconn = InfluxDbDecorator(IntegrationTestShared.INFLUX_URL, IntegrationTestShared.DB_NAME)
+        val dbconn = InfluxDbDecoratorImpl(IntegrationTestShared.INFLUX_URL, IntegrationTestShared.DB_NAME)
         resUsageManager = ResourceUsageManagerInfluxDbImpl(dbconn)
     }
 

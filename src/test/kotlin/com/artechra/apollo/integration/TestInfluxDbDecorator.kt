@@ -23,11 +23,11 @@ class TestInfluxDbDecorator {
         private val TEST_SET            = IntegrationTestShared.TEST_SET_NAME
     }
 
-    private var influxdb: InfluxDbDecorator? = null
+    private var influxdb: InfluxDbDecoratorImpl? = null
 
     @Before
     fun setup() {
-        this.influxdb = InfluxDbDecorator(DBURL, DATABASE)
+        this.influxdb = InfluxDbDecoratorImpl(DBURL, DATABASE)
         assertEquals(TEST_SET, IntegrationTestShared.getTestDataSetLoadedName(influxdb!!, DATABASE))
     }
 
@@ -38,7 +38,7 @@ class TestInfluxDbDecorator {
 
     // A little helper to work around the need for mutability in the decorator reference
     // due to the use of @Before rather than an init {} block
-    private fun getDbConn() : InfluxDbDecorator {
+    private fun getDbConn() : InfluxDbDecoratorImpl {
         return influxdb ?: throw IllegalStateException("No database connection available")
     }
 
