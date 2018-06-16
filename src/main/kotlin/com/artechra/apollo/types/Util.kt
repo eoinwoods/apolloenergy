@@ -28,10 +28,16 @@ class Util {
             return (seconds * SEC_TO_MSEC_MULTIPLIER).roundToLong()
         }
 
+        fun truncateDecimalPlaces(number : Double, digits : Long) : Double {
+            val multiplier = Math.pow(10.0, digits.toDouble())
+            val intValue = (number * multiplier).roundToLong()
+            return intValue / multiplier
+        }
+
         fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
             // in principle this interpolation works for any point on the line described
             // by the points but to keep things simple limit to use between the points
-            assert(requiredPoint >= point1 && requiredPoint <= point2)
+            assert(requiredPoint >= point1 && requiredPoint <= point2, {-> "expected $point1 <= $requiredPoint <= $point2"})
 
             val timeDiff = point2 - point1
             val valueDiff = value2 - value1
