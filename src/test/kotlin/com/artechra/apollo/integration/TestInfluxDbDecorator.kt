@@ -10,12 +10,11 @@ import kotlin.test.assertTrue
 
 
 class TestInfluxDbDecorator {
-    val LOG = Logger.getLogger(this.javaClass.name)
+    private val _log = Logger.getLogger(this.javaClass.name)
 
     companion object {
         private val DBURL               = IntegrationTestShared.INFLUX_URL
         private val DATABASE            = IntegrationTestShared.DB_NAME
-
         private val CONTAINER_ID        = IntegrationTestShared.GATEWAY_CONTAINER_ID
         private val DISKIO_CONTAINER_ID = IntegrationTestShared.INFLUXDB_CONTAINER_ID
         private val SPAN_TIME_MS        = IntegrationTestShared.SPAN_START_TIME_MS
@@ -49,7 +48,7 @@ class TestInfluxDbDecorator {
         val result = dbconn.query(query)
         val resultMapper = InfluxDBResultMapper()
         val cpuList = resultMapper.toPOJO(result, CpuMeasurement::class.java)
-        LOG.info("cpuList=$cpuList")
+        _log.info("cpuList=$cpuList")
         assertEquals(1, cpuList.size)
         assertEquals("cpuhog", cpuList[0].containerName)
         assertEquals(HOST_NAME, cpuList[0].hostName)
@@ -64,7 +63,7 @@ class TestInfluxDbDecorator {
         val result = dbconn.query(query)
         val resultMapper = InfluxDBResultMapper()
         val hostCpuList = resultMapper.toPOJO(result, HostCpuMeasurement::class.java)
-        LOG.info("hostCpuList=" + hostCpuList[0])
+        _log.info("hostCpuList=" + hostCpuList[0])
         assertEquals(1, hostCpuList.size)
         assertEquals(HOST_NAME, hostCpuList[0].hostName)
         assertEquals(294400, hostCpuList[0].cpuUsageMsec)
@@ -79,7 +78,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val memList = resultMapper.toPOJO(result, MemMeasurement::class.java)
         assertEquals(1, memList.size)
-        LOG.info("memList: " + memList[0])
+        _log.info("memList: " + memList[0])
         assertEquals("cpuhog", memList[0].containerName)
         assertEquals(413880320, memList[0].memUsage)
         assertEquals(1528650681000, memList[0].timeMillis)
@@ -93,7 +92,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val diskIoList = resultMapper.toPOJO(result, DiskIoMeasurement::class.java)
         assertEquals(1, diskIoList.size)
-        LOG.info("diskIoList=" + diskIoList[0])
+        _log.info("diskIoList=" + diskIoList[0])
         assertEquals("influxdb", diskIoList[0].containerName)
         assertEquals(94208, diskIoList[0].diskIoBytes)
         assertEquals(1528650681000, diskIoList[0].timeMillis)
@@ -108,7 +107,7 @@ class TestInfluxDbDecorator {
         val resultMapper = InfluxDBResultMapper()
         val netIoList = resultMapper.toPOJO(result, NetIoMeasurement::class.java)
         assertEquals(1, netIoList.size)
-        LOG.info("netIoList=" + netIoList[0])
+        _log.info("netIoList=" + netIoList[0])
         assertEquals("influxdb", netIoList[0].containerName)
         assertEquals(5503, netIoList[0].rxBytes)
         assertEquals(1460, netIoList[0].txBytes)
@@ -186,7 +185,7 @@ class TestInfluxDbDecorator {
 
     @Test(expected = IllegalStateException::class)
     fun testThatHostUtilisationForNonExistentHostThrowsException() {
-        val utilisation = getDbConn().getHostCpuUtilisationDuringPeriod("NO_SUCH_HOST",
+        getDbConn().getHostCpuUtilisationDuringPeriod("NO_SUCH_HOST",
                 IntegrationTestShared.SPAN_START_TIME_MS,
                 IntegrationTestShared.SPAN_END_TIME_MS)
 
