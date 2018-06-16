@@ -46,6 +46,8 @@ class EnergyUsageManagerSimulator(val influxdb : InfluxDbDecorator) : EnergyUsag
         val powerEstimateTimes100 = Util.interpolateBetweenPoints(startTimeMsec, (lowValue * 100).roundToLong(),
                 endTimeMsec, (highValue*100).roundToLong(), rp)
 
+        // TODO - this is returning Power (Watts) total which is clearly nonsence.  Need to
+        // convert to actual energy - Joules.
         return powerEstimateTimes100 / 100
     }
 
