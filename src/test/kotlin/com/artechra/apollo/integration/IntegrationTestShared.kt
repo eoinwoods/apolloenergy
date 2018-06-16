@@ -1,6 +1,6 @@
 package com.artechra.apollo.integration
 
-import com.artechra.apollo.resusage.InfluxDbDecorator
+import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import org.influxdb.dto.Query
 import kotlin.test.assertEquals
 
@@ -22,8 +22,9 @@ class IntegrationTestShared {
         val SPAN_START_TIME_MS = 1528666358000
         val SPAN_END_TIME_MS   = 1528666372000
         val HOST_NAME = "7a822ae18873"
+        val MULTI_SPAN_ZIPKIN_TRACE_ID = "468CE081D5B05907"
 
-        fun getTestDataSetLoadedName(dbConn : InfluxDbDecorator, databaseName : String) : String {
+        fun getTestDataSetLoadedName(dbConn : InfluxDbDecoratorImpl, databaseName : String) : String {
             val query = Query("SELECT * FROM apollo_check WHERE value = 1", databaseName)
             val result = dbConn.getInfluxDbConnection().query(query)
             assertEquals("data_set", result?.results?.get(0)?.series?.get(0)?.columns?.get(2))

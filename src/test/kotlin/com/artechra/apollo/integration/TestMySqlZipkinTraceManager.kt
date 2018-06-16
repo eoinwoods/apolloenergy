@@ -12,7 +12,7 @@ import javax.sql.DataSource
 
 class TestMySqlZipkinTraceManager {
 
-    val MULTI_SPAN_TRACE_ID = "5DDDECCF2119C5BB"
+    val MULTI_SPAN_TRACE_ID = IntegrationTestShared.MULTI_SPAN_ZIPKIN_TRACE_ID
     val TEST_DATA_SET = IntegrationTestShared.TEST_SET_NAME
 
     @Before

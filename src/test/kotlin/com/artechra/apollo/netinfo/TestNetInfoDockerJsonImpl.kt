@@ -15,7 +15,7 @@ class TestNetInfoDockerJsonImpl {
     @Test
     fun testInitialisationLoadsData() {
         val obj = NetInfoDockerJsonImpl(defaultDataFile())
-        assertEquals(6, obj.getNumberOfContainers(), "Wrong number of containers loaded")
+        assertEquals(2, obj.getNumberOfContainers(), "Wrong number of containers loaded")
     }
 
     @Test

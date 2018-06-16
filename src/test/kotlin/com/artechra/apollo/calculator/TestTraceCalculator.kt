@@ -1,8 +1,5 @@
 package com.artechra.apollo.calculator
 
-import com.artechra.apollo.integration.IntegrationTestShared
-import com.artechra.apollo.resusage.InfluxDbDecorator
-import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.stubs.StubNetInfo
 import com.artechra.apollo.stubs.StubResourceUsageManager
 import com.artechra.apollo.types.ResourceUsage
@@ -21,7 +18,7 @@ class TestTraceCalculator {
         val testNetInfo = StubNetInfo(hashMapOf(networkAddr to containerId),
                 hashMapOf(containerId to networkAddr))
         val testResourceUsageManager = StubResourceUsageManager(hashMapOf(containerId to ResourceUsage(12, 2, 3, 4)),
-                hashMapOf(containerId to networkAddr), hashMapOf(networkAddr to 123L))
+                hashMapOf(containerId to networkAddr), hashMapOf(containerId to 123L))
         val trivialTrace = Trace(setOf(Span( "54C92796854B15C8","54C92796854B15C8", "192.168.1.2",baseTime+100000, baseTime+110000)))
         val tc = TraceCalculator(testResourceUsageManager, testNetInfo)
         val estimate = tc.calculateCpuMsecAndEnergyJoulesEstimateForTrace(trivialTrace) ;
