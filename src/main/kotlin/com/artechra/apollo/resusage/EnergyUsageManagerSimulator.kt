@@ -38,20 +38,20 @@ class EnergyUsageManagerSimulator(val influxdb : InfluxDbDecorator) : EnergyUsag
         assert(highBound % 10 == 0 && highBound <= 100 && highBound >= 0)
 
 
-        val secIncrement = (utilisation*100 - lowBound).roundToLong()
-        val rp = calcRequiredPoint(startTimeMsec, endTimeMsec, secondsIncrement = secIncrement)
+        val rp = calcRequiredPoint(utilisation, lowBound, startTimeMsec, endTimeMsec)
 
         val lowValue = powerConsumptionMetrics[lowBound]!!
         val highValue = powerConsumptionMetrics[highBound]!!
         val powerEstimateTimes100 = Util.interpolateBetweenPoints(startTimeMsec, (lowValue * 100).roundToLong(),
                 endTimeMsec, (highValue*100).roundToLong(), rp)
 
-        // TODO - this is returning Power (Watts) total which is clearly nonsence.  Need to
-        // convert to actual energy - Joules.
-        return powerEstimateTimes100 / 100
+        val durationSec = (endTimeMsec - startTimeMsec)/1000
+        // convert to J here in the final step
+        return (powerEstimateTimes100 / 100) * durationSec
     }
 
-    fun calcRequiredPoint(startTimeMsec : Long, endTimeMsec : Long, secondsIncrement : Long) : Long {
+    fun calcRequiredPoint(cpuUtilisation : Double, lowBound : Int, startTimeMsec : Long, endTimeMsec : Long) : Long {
+        val secondsIncrement = (cpuUtilisation*100 - lowBound).roundToLong()
         return startTimeMsec + (secondsIncrement*1000)
     }
 
