@@ -3,7 +3,7 @@ package com.artechra.apollo
 import com.artechra.apollo.calculator.EnergyCalculator
 import com.artechra.apollo.calculator.EnergyCalculatorImpl
 import com.artechra.apollo.netinfo.NetInfoDockerJsonImpl
-import com.artechra.apollo.resusage.InfluxDbDecorator
+import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
 import org.apache.logging.log4j.LogManager
@@ -24,7 +24,7 @@ class Application {
         val resDbName = getConfigItem("apollo.resdb.dbname", configuration)
         val resDbUser = getConfigItem("apollo.resdb.dbname", configuration)
         val resDbPass = getConfigItem("apollo.resdb.password", configuration)
-        val influxDbDecorator = InfluxDbDecorator(resDbUrl, resDbName, resDbUser, resDbPass)
+        val influxDbDecorator = InfluxDbDecoratorImpl(resDbUrl, resDbName, resDbUser, resDbPass)
         val resUsageMgr = ResourceUsageManagerInfluxDbImpl(influxDbDecorator)
 
 
