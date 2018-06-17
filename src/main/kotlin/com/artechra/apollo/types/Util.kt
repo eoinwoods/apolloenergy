@@ -28,8 +28,8 @@ class Util {
             return (seconds * SEC_TO_MSEC_MULTIPLIER).roundToLong()
         }
 
-        fun truncateDecimalPlaces(number : Double, digits : Long) : Double {
-            val multiplier = Math.pow(10.0, digits.toDouble())
+        fun roundToNDecimalPlaces(number : Double, decimalPlaces : Long) : Double {
+            val multiplier = Math.pow(10.0, decimalPlaces.toDouble())
             val intValue = (number * multiplier).roundToLong()
             return intValue / multiplier
         }

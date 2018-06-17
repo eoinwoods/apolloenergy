@@ -14,12 +14,12 @@ class TestUtil {
 
     @Test
     fun testThatTruncatingSeveralPlacesWorks() {
-        assertEquals(0.003, Util.truncateDecimalPlaces(0.003456789, 3))
+        assertEquals(0.003, Util.roundToNDecimalPlaces(0.003456789, 3))
     }
 
     @Test
     fun testThatTruncatingZeroPlacesWorks() {
-        assertEquals(2.0, Util.truncateDecimalPlaces(2.003456789, 0))
+        assertEquals(2.0, Util.roundToNDecimalPlaces(2.003456789, 0))
     }
 
 }

@@ -1,6 +1,7 @@
 package com.artechra.apollo.resusage
 
 import com.artechra.apollo.types.Util
+import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -30,34 +31,37 @@ class EnergyUsageManagerSimulator(val influxdb : InfluxDbDecorator) : EnergyUsag
     override fun getEnergyUsageForHostInJoules(hostName: String, startTimeMsec: Long, endTimeMsec: Long): Long {
 
         val hostUtilisation = influxdb.getHostCpuUtilisationDuringPeriod(hostName, startTimeMsec, endTimeMsec)
-        val utilisation = Util.truncateDecimalPlaces(hostUtilisation , 2)
-        println("HU=$hostUtilisation U=$utilisation")
-        val lowBound = percentageDecimalToTenPercentValue(utilisation)
-        assert(lowBound % 10 == 0 && lowBound <= 100 && lowBound >= 0)
+        val utilisation = Util.roundToNDecimalPlaces(hostUtilisation , 2)
+        val lowBound = calculateLowerPercentageBound(utilisation)
+        assert(lowBound % 10 == 0 && lowBound <= 90 && lowBound >= 0, {-> "invalid low bound $lowBound"})
         val highBound = lowBound + 10
-        assert(highBound % 10 == 0 && highBound <= 100 && highBound >= 0)
+        assert(highBound % 10 == 0 && highBound <= 100 && highBound >= 10, {-> "invalid high bound $highBound"})
 
 
-        val rp = calcRequiredPoint(utilisation, lowBound, startTimeMsec, endTimeMsec)
-
+        // The data (above) from the benchmark gives us power consumption at 10% utilisation intervals
+        // so calculate an interpolated power value for the power consumption at the actual CPU utilisation
         val lowValue = powerConsumptionMetrics[lowBound]!!
         val highValue = powerConsumptionMetrics[highBound]!!
-        val powerEstimateTimes100 = Util.interpolateBetweenPoints(startTimeMsec, (lowValue * 100).roundToLong(),
-                endTimeMsec, (highValue*100).roundToLong(), rp)
+        val powerEstimateW = calculatePowerValueEstimateForUtilisationInW(lowBound, lowValue, highBound, highValue, utilisation)
 
         val durationSec = (endTimeMsec - startTimeMsec)/1000
-        // convert to J here in the final step
-        return (powerEstimateTimes100 / 100) * durationSec
+        // J = W * seconds
+        return (powerEstimateW * durationSec).roundToLong()
     }
 
-    fun calcRequiredPoint(cpuUtilisation : Double, lowBound : Int, startTimeMsec : Long, endTimeMsec : Long) : Long {
-        val secondsIncrement = (cpuUtilisation*100 - lowBound).roundToLong()
-        return startTimeMsec + (secondsIncrement*1000)
-    }
-
-    fun percentageDecimalToTenPercentValue(percentage : Double) : Int {
+    // Converts decimal between 0 and 0.99 to next lowest 10% value (e.g. 0.47 to 40)
+    fun calculateLowerPercentageBound(percentage : Double) : Int {
         assert(percentage < 1.0 && percentage > 0.0)
-        return (percentage*10).roundToInt() * 10
+        return floor(percentage*10).roundToInt() * 10
+    }
+
+    fun calculatePowerValueEstimateForUtilisationInW(lowBound : Int, lowPowerValue : Double,
+                                                  highBound : Int, highPowerValue : Double,
+                                                  actualUtilisation : Double) : Double {
+        val powerEstimateTimes100 = Util.interpolateBetweenPoints(lowBound.toLong(),(lowPowerValue * 100).roundToLong(),
+                highBound.toLong(), (highPowerValue*100).roundToLong(), (actualUtilisation*100).roundToLong())
+        return powerEstimateTimes100 / 100.0
+
     }
 
 }

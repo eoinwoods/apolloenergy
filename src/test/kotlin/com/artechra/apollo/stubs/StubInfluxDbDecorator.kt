@@ -1,11 +1,16 @@
 package com.artechra.apollo.stubs
 
 import com.artechra.apollo.resusage.InfluxDbDecorator
+import kotlin.math.abs
 
 class StubInfluxDbDecorator(val hostCpuUtilisation :Map<Long, Double>) : InfluxDbDecorator {
 
     override fun getHostCpuUtilisationDuringPeriod(hostName: String, startTimeMsec: Long, endTimeMsec: Long): Double {
-        return hostCpuUtilisation.getValue(startTimeMsec)
+        val startValue= hostCpuUtilisation.getValue(startTimeMsec)
+        val endValue= hostCpuUtilisation.getValue(endTimeMsec)
+        val delta = endValue - startValue
+        val duration = (endTimeMsec - startTimeMsec)/1000
+        return startValue + (delta/duration)*(duration/2)
     }
 
 
