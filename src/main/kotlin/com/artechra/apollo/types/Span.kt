@@ -1,8 +1,9 @@
 package com.artechra.apollo.types
 
+const val IP_V4_PATTERN = "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}"
+const val HEX_PATTERN = "[0-9ABCDEFabcdef]+"
+
 data class Span(val traceId : String, val spanId: String, val networkAddress: String, val startTimeMsec: Long, val endTimeMsec: Long, var parentId: String? = null) {
-    val IP_V4_PATTERN = "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}"
-    val HEX_PATTERN = "[0-9ABCDEFabcdef]+"
     init {
         if (!traceId.matches(Regex(HEX_PATTERN))) {
             throw IllegalArgumentException("Expected hexadecimal trace ID not '${traceId}'")
