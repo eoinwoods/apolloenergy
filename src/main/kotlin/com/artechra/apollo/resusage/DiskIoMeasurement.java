@@ -9,11 +9,11 @@ import org.influxdb.annotation.Measurement;
 @Measurement(name = "docker_container_blkio")
 public class DiskIoMeasurement implements GenericMeasurement {
 
-    @Column(name = "time")
+    @Column(name = "time") private
     Instant timeMillis;
-    @Column(name = "container_name", tag = true)
+    @Column(name = "container_name", tag = true) private
     String containerName ;
-    @Column(name = "io_service_bytes_recursive_total")
+    @Column(name = "io_service_bytes_recursive_total") private
     long diskIoBytes ;
 
     public DiskIoMeasurement() {}

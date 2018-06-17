@@ -8,7 +8,7 @@ import org.influxdb.annotation.Measurement;
 @Measurement(name = "system")
 public class HostCpuCountMeasurement {
 
-    @Column(name = "host", tag = true)
+    @Column(name = "host", tag = true) private
     String hostName ;
     @Column(name = "n_cpus")
     long cpuCount;

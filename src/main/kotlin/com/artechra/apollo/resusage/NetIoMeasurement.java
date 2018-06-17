@@ -9,13 +9,13 @@ import org.influxdb.annotation.Measurement;
 @Measurement(name = "docker_container_net")
 public class NetIoMeasurement implements GenericMeasurement {
 
-    @Column(name = "time")
+    @Column(name = "time") private
     Instant timeMillis;
-    @Column(name = "container_name", tag = true)
+    @Column(name = "container_name", tag = true) private
     String containerName ;
-    @Column(name = "rx_bytes")
+    @Column(name = "rx_bytes") private
     long rxBytes ;
-    @Column(name = "tx_bytes")
+    @Column(name = "tx_bytes") private
     long txBytes ;
 
     public NetIoMeasurement() {}

@@ -9,11 +9,11 @@ import org.influxdb.annotation.Measurement;
 @Measurement(name = "docker_container_mem")
 public class MemMeasurement implements GenericMeasurement {
 
-    @Column(name = "time")
+    @Column(name = "time") private
     Instant timeMillis;
-    @Column(name = "container_name", tag = true)
+    @Column(name = "container_name", tag = true) private
     String containerName ;
-    @Column(name = "usage")
+    @Column(name = "usage") private
     long memUsage ;
 
     public MemMeasurement() {}
