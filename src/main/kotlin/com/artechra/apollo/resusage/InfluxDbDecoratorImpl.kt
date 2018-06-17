@@ -123,8 +123,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
         val result = _influxdb.query(dbQuery)
 
         val resultMapper = InfluxDBResultMapper()
-        val valueList = resultMapper.toPOJO(result, mappingClass)
-        return valueList
+        return resultMapper.toPOJO(result, mappingClass)
     }
 
 
@@ -209,8 +208,8 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
                     break
                 }
             }
-            val beforeReturn: GenericMeasurement = before ?: throw IllegalStateException("No before value found for time ${timeMillis}")
-            val afterReturn: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time ${timeMillis}")
+            val beforeReturn: GenericMeasurement = before ?: throw IllegalStateException("No before value found for time $timeMillis")
+            val afterReturn: GenericMeasurement = after ?: throw IllegalStateException("No after value found for time $timeMillis")
             return Pair(beforeReturn, afterReturn)
         }
 

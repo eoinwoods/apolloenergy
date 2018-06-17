@@ -11,7 +11,7 @@ import java.sql.ResultSet
 class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
 
     override fun getTraces(): List<Trace> {
-        val ret : MutableList<Trace> = ArrayList<Trace>()
+        val ret : MutableList<Trace> = ArrayList()
 
         for (traceId in getRootSpans()) {
             val trace = getTrace(traceId)
@@ -23,7 +23,7 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
     override fun getTrace(traceId: String): Trace {
         val spans = getSpansForTrace(traceId)
         if (spans.isEmpty()) {
-            throw IllegalArgumentException("No data found for trace ID '${traceId}'")
+            throw IllegalArgumentException("No data found for trace ID '$traceId'")
         }
         return Trace(spans.toSet())
     }

@@ -38,7 +38,7 @@ class Application {
     }
 
     private fun getConfigItem(name : String, config : Map<String,String>) : String {
-        return config[name] ?: throw IllegalStateException("No value for configuration item ${name}")
+        return config[name] ?: throw IllegalStateException("No value for configuration item $name")
     }
 
     fun createJdbcTemplate(dbDriver: String, dbUrl : String, dbUser : String, dbPass : String) : JdbcTemplate {

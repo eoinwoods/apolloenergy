@@ -33,9 +33,9 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
         val hostUtilisation = influxdb.getHostCpuUtilisationDuringPeriod(hostName, startTimeMsec, endTimeMsec)
         val utilisation = Util.roundToNDecimalPlaces(hostUtilisation, 2)
         val lowBound = calculateLowerPercentageBound(utilisation)
-        assert(lowBound % 10 == 0 && lowBound <= 90 && lowBound >= 0, { -> "invalid low bound $lowBound" })
+        assert(lowBound % 10 == 0 && lowBound <= 90 && lowBound >= 0, { "invalid low bound $lowBound" })
         val highBound = lowBound + 10
-        assert(highBound % 10 == 0 && highBound <= 100 && highBound >= 10, { -> "invalid high bound $highBound" })
+        assert(highBound % 10 == 0 && highBound <= 100 && highBound >= 10, { "invalid high bound $highBound" })
 
         // The data (above) from the benchmark gives us power consumption at 10% utilisation intervals
         // so calculate an interpolated power value for the power consumption at the actual CPU utilisation

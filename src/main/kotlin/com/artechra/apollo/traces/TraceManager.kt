@@ -1,6 +1,5 @@
 package com.artechra.apollo.traces
 
-import com.artechra.apollo.types.Span
 import com.artechra.apollo.types.Trace
 
 interface TraceManager {

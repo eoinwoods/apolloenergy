@@ -6,10 +6,10 @@ const val HEX_PATTERN = "[0-9ABCDEFabcdef]+"
 data class Span(val traceId : String, val spanId: String, val networkAddress: String, val startTimeMsec: Long, val endTimeMsec: Long, var parentId: String? = null) {
     init {
         if (!traceId.matches(Regex(HEX_PATTERN))) {
-            throw IllegalArgumentException("Expected hexadecimal trace ID not '${traceId}'")
+            throw IllegalArgumentException("Expected hexadecimal trace ID not '$traceId'")
         }
         if (!spanId.matches(Regex(HEX_PATTERN))) {
-            throw IllegalArgumentException("Expected hexadecimal span ID not '${spanId}'")
+            throw IllegalArgumentException("Expected hexadecimal span ID not '$spanId'")
         }
         if (startTimeMsec > endTimeMsec) {
             throw IllegalArgumentException("Cannot create span with start time later than end time")

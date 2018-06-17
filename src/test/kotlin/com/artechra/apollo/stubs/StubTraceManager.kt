@@ -1,8 +1,7 @@
 package com.artechra.apollo.stubs
 
-import com.artechra.apollo.types.Trace
 import com.artechra.apollo.traces.TraceManager
-import com.artechra.apollo.types.Span
+import com.artechra.apollo.types.Trace
 
 class StubTraceManager(val dummyTraces : List<Trace>) : TraceManager {
     override fun getTrace(traceId: String): Trace {
@@ -11,7 +10,7 @@ class StubTraceManager(val dummyTraces : List<Trace>) : TraceManager {
                 return t
             }
         }
-        throw IllegalArgumentException("No trace found for ID ${traceId}")
+        throw IllegalArgumentException("No trace found for ID $traceId")
     }
 
     override fun getTraces(): List<Trace> {

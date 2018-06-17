@@ -1,7 +1,6 @@
 package com.artechra.apollo.calculator
 
 import com.artechra.apollo.types.EnergyEstimate
-import com.artechra.apollo.types.ResourceUsage
 
 interface EnergyCalculator {
 

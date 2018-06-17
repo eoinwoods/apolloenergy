@@ -1,7 +1,6 @@
 package com.artechra.apollo.stubs
 
 import com.artechra.apollo.resusage.InfluxDbDecorator
-import kotlin.math.abs
 
 class StubInfluxDbDecorator(val hostCpuUtilisation :Map<Long, Double>) : InfluxDbDecorator {
 

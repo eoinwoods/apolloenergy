@@ -7,7 +7,7 @@ class TestArchitecturalDescription {
 
     @Test
     fun testThatElementsAreReturnedByName() {
-        val ad = ArchitecturalDescription("System1", setOf<ArchitecturalElement>(
+        val ad = ArchitecturalDescription("System1", setOf(
                 ArchitecturalElement("C1"),
                 ArchitecturalElement("C2"),
                 ArchitecturalElement("C2")
