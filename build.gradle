@@ -51,9 +51,8 @@ dependencies {
     compile 'org.influxdb:influxdb-java:2.8'
     compile 'mysql:mysql-connector-java:6.0.6'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.6.1'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.1'
+    compile 'com.beust:klaxon:2.0.11'
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
-    compile 'com.beust:klaxon:2.0.11'
-
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.1'
 }
