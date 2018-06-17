@@ -16,6 +16,7 @@ class NetInfoDockerJsonImpl(netInfoFileName: String) : NetInfo {
             throw IllegalArgumentException("Could not open file $netInfoFileName")
         }
 
+        @Suppress("UNCHECKED_CAST") // Parser returns Any? objects but we know what they are
         val jsonData: JsonArray<JsonObject>? = Parser().parse(netInfoFileName) as? JsonArray<JsonObject>
         jsonData ?: throw IllegalStateException("Could not convert parser output to JsonArray")
         jsonData.forEach {
