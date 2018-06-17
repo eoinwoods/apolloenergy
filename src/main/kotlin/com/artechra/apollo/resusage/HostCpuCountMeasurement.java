@@ -1,6 +1,5 @@
 package com.artechra.apollo.resusage;
 
-import java.time.Instant;
 import java.util.Objects;
 
 import org.influxdb.annotation.Column;
