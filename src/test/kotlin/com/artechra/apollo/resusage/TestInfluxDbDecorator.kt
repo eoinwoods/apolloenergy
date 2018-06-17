@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class TestInfluxDbDecorator {
 
-    fun getCpuMeasurements() : MutableList<CpuMeasurement>{
+    private fun getCpuMeasurements() : MutableList<CpuMeasurement>{
         val ret = mutableListOf<CpuMeasurement>()
 
         // 4 intervals 10 sec apart
@@ -23,8 +23,8 @@ class TestInfluxDbDecorator {
         // findMeasurementsAroundPointInTime
         val(before, after) =
                 InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237437456)
-        assertEquals(1515237432000, before.getTimeMillis())
-        assertEquals(1515237442000, after.getTimeMillis())
+        assertEquals(1515237432000, before.timeMillis)
+        assertEquals(1515237442000, after.timeMillis)
     }
 
     @Test
@@ -32,8 +32,8 @@ class TestInfluxDbDecorator {
         // findMeasurementsAroundPointInTime
         val(before, after) =
                 InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237422000)
-        assertEquals(1515237422000, before.getTimeMillis())
-        assertEquals(1515237432000, after.getTimeMillis())
+        assertEquals(1515237422000, before.timeMillis)
+        assertEquals(1515237432000, after.timeMillis)
     }
 
     @Test
@@ -41,8 +41,8 @@ class TestInfluxDbDecorator {
         // findMeasurementsAroundPointInTime
         val(before, after) =
                 InfluxDbDecoratorImpl.findMeasurementsAroundPointInTime(getCpuMeasurements(), 1515237452000)
-        assertEquals(1515237442000, before.getTimeMillis())
-        assertEquals(1515237452000, after.getTimeMillis())
+        assertEquals(1515237442000, before.timeMillis)
+        assertEquals(1515237452000, after.timeMillis)
     }
 
     @Test

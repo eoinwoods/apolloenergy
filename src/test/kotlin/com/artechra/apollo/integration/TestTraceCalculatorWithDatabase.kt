@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 class TestTraceCalculatorWithDatabase {
 
-    val traceCalculator: TraceCalculator
+    private val traceCalculator: TraceCalculator
 
     init {
 

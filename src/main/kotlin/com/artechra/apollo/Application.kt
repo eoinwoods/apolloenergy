@@ -41,7 +41,7 @@ class Application {
         return config[name] ?: throw IllegalStateException("No value for configuration item $name")
     }
 
-    fun createJdbcTemplate(dbDriver: String, dbUrl : String, dbUser : String, dbPass : String) : JdbcTemplate {
+    private fun createJdbcTemplate(dbDriver: String, dbUrl : String, dbUser : String, dbPass : String) : JdbcTemplate {
             // Creates a new instance of DriverManagerDataSource and sets
             // the required parameters such as the Jdbc Driver class,
             // Jdbc URL, database user name and password.
@@ -63,7 +63,7 @@ class Application {
         for (k in prop.keys) {
             val key = k as String
             val value = prop[key] as String
-            ret.put(key, value)
+            ret[key] = value
         }
         return ret
     }
@@ -82,7 +82,7 @@ fun main(args: Array<String>) {
     val propsFileName = args[0]
     val app = Application()
     val config = app.loadConfiguration(propsFileName)
-    _log.info("CONFIG: " + config)
+    _log.info("CONFIG: $config")
     val calc = app.assemble(config)
     val energyUsage = calc.calculateEnergyForRequests()
     println("Energy usage for traces:")

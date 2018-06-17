@@ -5,12 +5,12 @@ import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class TestTrace {
-    val baseTimeMsec = 1515237412000
-    val root  =   Span("54C92796854B15C8", "54C92796854B15C8","192.168.1.1", baseTimeMsec+0, baseTimeMsec+500)
-    val span1 =   Span("54C92796854B15C8", "54C92796854B1600", "192.168.1.2", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
-    val span2 =   Span("54C92796854B15C8", "54C92796854B1700", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, root.spanId)
-    val span2_1 = Span("54C92796854B15C8", "54C92796854B1701", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
-    val span2_2 = Span("54C92796854B15C8", "54C92796854B1702", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
+    private val baseTimeMsec = 1515237412000
+    private val root  =   Span("54C92796854B15C8", "54C92796854B15C8","192.168.1.1", baseTimeMsec+0, baseTimeMsec+500)
+    private val span1 =   Span("54C92796854B15C8", "54C92796854B1600", "192.168.1.2", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
+    private val span2 =   Span("54C92796854B15C8", "54C92796854B1700", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, root.spanId)
+    private val span2_1 = Span("54C92796854B15C8", "54C92796854B1701", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
+    private val span2_2 = Span("54C92796854B15C8", "54C92796854B1702", "192.168.1.3", baseTimeMsec+150, baseTimeMsec+300, span2.spanId)
 
 
     // perhaps this should be in a TestSpan test, but Span is really part of Trace

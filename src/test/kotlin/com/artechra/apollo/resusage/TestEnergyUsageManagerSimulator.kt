@@ -6,13 +6,13 @@ import kotlin.test.assertEquals
 
 class TestEnergyUsageManagerSimulator {
 
-    val utilisationMetrics = mapOf(1528666358000 to 0.126583,
+    private val utilisationMetrics = mapOf(1528666358000 to 0.126583,
                                    1528666368000 to 0.5738574,
                                    1528666378000 to 0.9900383583,
                                    1528666388000 to 0.290383,
                                    1528666398000 to 0.02)
 
-    val influxDb = StubInfluxDbDecorator(utilisationMetrics)
+    private val influxDb = StubInfluxDbDecorator(utilisationMetrics)
 
     @Test
     fun testUtilisationIsCredible() {

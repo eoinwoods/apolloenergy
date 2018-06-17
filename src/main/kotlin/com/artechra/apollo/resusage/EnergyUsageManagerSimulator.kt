@@ -14,7 +14,7 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
     //
     // Measured via the SPEC Power SSJ 2008 test: https://www.spec.org/power_ssj2008/
 
-    val powerConsumptionMetrics = mapOf(
+    private val powerConsumptionMetrics = mapOf(
             100 to 272.0,
             90 to 238.0,
             80 to 205.0,
@@ -49,14 +49,14 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
     }
 
     // Converts decimal between 0 and 0.99 to next lowest 10% value (e.g. 0.47 to 40)
-    fun calculateLowerPercentageBound(percentage: Double): Int {
+    private fun calculateLowerPercentageBound(percentage: Double): Int {
         assert(percentage < 1.0 && percentage > 0.0)
         return floor(percentage * 10).roundToInt() * 10
     }
 
-    fun calculatePowerValueEstimateForUtilisationInW(lowBound: Int, lowPowerValue: Double,
-                                                     highBound: Int, highPowerValue: Double,
-                                                     actualUtilisation: Double): Double {
+    private fun calculatePowerValueEstimateForUtilisationInW(lowBound: Int, lowPowerValue: Double,
+                                                             highBound: Int, highPowerValue: Double,
+                                                             actualUtilisation: Double): Double {
         val powerEstimateTimes100 = Util.interpolateBetweenPoints(lowBound.toLong(), (lowPowerValue * 100).roundToLong(),
                 highBound.toLong(), (highPowerValue * 100).roundToLong(), (actualUtilisation * 100).roundToLong())
         return powerEstimateTimes100 / 100.0

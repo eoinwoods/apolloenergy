@@ -6,8 +6,8 @@ import java.lang.IllegalArgumentException
 
 class TestSpan {
 
-    val startTimeMsec = 1515237352000
-    val endTimeMsec   = 1515237422000
+    private val startTimeMsec = 1515237352000
+    private val endTimeMsec   = 1515237422000
 
     @Test
     fun testMaximalIpAddressIsAccepted() {

@@ -4,13 +4,13 @@ data class Trace(val spans : Set<Span>) {
     val root : Span
     val children : Set<Span>
     init {
-        root = findRoot(spans) ?: throw IllegalArgumentException("No root span found in Trace: " + spans)
+        root = findRoot(spans) ?: throw IllegalArgumentException("No root span found in Trace: $spans")
         children = spans.minus(root)
         if (findRoot(children) != null) {
-            throw IllegalArgumentException("Cannot create Trace with more than one root span: " + spans)
+            throw IllegalArgumentException("Cannot create Trace with more than one root span: $spans")
         }
         if (!validateTimes(spans)) {
-            throw IllegalArgumentException("Spans within Trace have start or end times outside root span period: " + spans)
+            throw IllegalArgumentException("Spans within Trace have start or end times outside root span period: $spans")
         }
     }
 
@@ -42,7 +42,7 @@ data class Trace(val spans : Set<Span>) {
             minTime = if (minTime < s.startTimeMsec) minTime else s.startTimeMsec
             maxTime = if (maxTime > s.endTimeMsec)   maxTime else s.endTimeMsec
         }
-        val root = findRoot(spans) ?: throw IllegalStateException("Could not find root in Span set: " + spans)
+        val root = findRoot(spans) ?: throw IllegalStateException("Could not find root in Span set: $spans")
         return root.startTimeMsec <= minTime && root.endTimeMsec >= maxTime
     }
 }

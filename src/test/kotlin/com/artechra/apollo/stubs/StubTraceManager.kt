@@ -3,10 +3,10 @@ package com.artechra.apollo.stubs
 import com.artechra.apollo.traces.TraceManager
 import com.artechra.apollo.types.Trace
 
-class StubTraceManager(val dummyTraces : List<Trace>) : TraceManager {
+class StubTraceManager(private val dummyTraces : List<Trace>) : TraceManager {
     override fun getTrace(traceId: String): Trace {
         for (t in dummyTraces) {
-            if (t.root.spanId.equals(traceId)) {
+            if (t.root.spanId == traceId) {
                 return t
             }
         }

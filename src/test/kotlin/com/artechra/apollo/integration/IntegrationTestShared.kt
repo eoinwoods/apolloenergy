@@ -11,7 +11,7 @@ class IntegrationTestShared {
 
         const val MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver"
         const val MYSQL_DB   = "zipkin"
-        const val MYSQL_URL  = "jdbc:mysql://localhost" + "/" + MYSQL_DB
+        const val MYSQL_URL  = "jdbc:mysql://localhost/$MYSQL_DB"
         const val MYSQL_USER = "zipkin"
         const val MYSQL_PASS = "zipkin"
 

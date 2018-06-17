@@ -2,7 +2,7 @@ package com.artechra.apollo.stubs
 
 import com.artechra.apollo.resusage.InfluxDbDecorator
 
-class StubInfluxDbDecorator(val hostCpuUtilisation :Map<Long, Double>) : InfluxDbDecorator {
+class StubInfluxDbDecorator(private val hostCpuUtilisation :Map<Long, Double>) : InfluxDbDecorator {
 
     override fun getHostCpuUtilisationDuringPeriod(hostName: String, startTimeMsec: Long, endTimeMsec: Long): Double {
         val startValue= hostCpuUtilisation.getValue(startTimeMsec)

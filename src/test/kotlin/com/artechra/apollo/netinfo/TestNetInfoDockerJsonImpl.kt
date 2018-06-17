@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class TestNetInfoDockerJsonImpl {
 
-    fun defaultDataFile() : String {
+    private fun defaultDataFile() : String {
         return getDataFilePath("test_docker_network.json")
     }
 

@@ -4,9 +4,9 @@ import kotlin.math.roundToLong
 
 class Util {
     companion object {
-        val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
-        val MSEC_TO_USEC_MULTIPLIER = 1000L
-        val SEC_TO_MSEC_MULTIPLIER = 1000L
+        private const val MSEC_TO_NANOSEC_MULTIPLIER = 1000000L
+        private const val MSEC_TO_USEC_MULTIPLIER = 1000L
+        private const val SEC_TO_MSEC_MULTIPLIER = 1000L
 
         @JvmStatic fun usecToMsec(usec : Long) : Long {
             return usec / MSEC_TO_USEC_MULTIPLIER
@@ -37,7 +37,7 @@ class Util {
         fun interpolateBetweenPoints(point1: Long, value1: Long, point2: Long, value2: Long, requiredPoint: Long): Long {
             // in principle this interpolation works for any point on the line described
             // by the points but to keep things simple limit to use between the points
-            assert(requiredPoint >= point1 && requiredPoint <= point2, { "expected $point1 <= $requiredPoint <= $point2"})
+            assert(requiredPoint in point1..point2, { "expected $point1 <= $requiredPoint <= $point2"})
 
             val timeDiff = point2 - point1
             val valueDiff = value2 - value1

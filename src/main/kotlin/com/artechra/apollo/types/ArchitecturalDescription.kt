@@ -1,9 +1,9 @@
 package com.artechra.apollo.types
 
-data class ArchitecturalDescription(val name : String, val elements : Set<ArchitecturalElement>) {
+data class ArchitecturalDescription(val name : String, private val elements : Set<ArchitecturalElement>) {
     fun findElementByName(name : String) : ArchitecturalElement? {
         elements.forEach {
-            if (it.name.equals(name)) {
+            if (it.name == name) {
                 return it
             }
         }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import java.sql.ResultSet
 
 @Component
-class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
+class MySqlZipkinTraceManagerImpl(private val jdbcConn : JdbcTemplate) : TraceManager {
 
     override fun getTraces(): List<Trace> {
         val ret : MutableList<Trace> = ArrayList()
@@ -29,14 +29,14 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
     }
 
 
-    fun getRootSpans() : List<String> {
+    private fun getRootSpans() : List<String> {
         val ret = jdbcConn.query(ROOT_SPANS_QUERY) {
             rs: ResultSet, _ : Int -> rs.getString("trace_id")
         }
         return ret
     }
 
-    fun getSpansForTrace(traceId : String) : List<Span> {
+    private fun getSpansForTrace(traceId : String) : List<Span> {
 
         val querySql = SPANS_FOR_TRACE_QUERY_TEMPLATE.format(traceId)
 
@@ -47,7 +47,7 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
         return results
     }
 
-    fun createSpanFromResultSetItem(rs : ResultSet) : Span {
+    private fun createSpanFromResultSetItem(rs : ResultSet) : Span {
         val startTimeMsec = Util.usecToMsec(rs.getLong("start_time_usec"))
         val endTimeMsec = Util.usecToMsec(rs.getLong("end_time_usec"))
         val span = Span(rs.getString("trace_id"), rs.getString("span_id"),
@@ -58,10 +58,10 @@ class MySqlZipkinTraceManagerImpl(val jdbcConn : JdbcTemplate) : TraceManager {
     }
 
     companion object {
-        val ROOT_SPANS_QUERY = "SELECT hex(trace_id) as trace_id, start_ts/1000 as start_time_msec, name, duration " +
+        const val ROOT_SPANS_QUERY = "SELECT hex(trace_id) as trace_id, start_ts/1000 as start_time_msec, name, duration " +
                 "FROM zipkin_spans WHERE trace_id = id"
 
-        val SPANS_FOR_TRACE_QUERY_TEMPLATE =
+        const val SPANS_FOR_TRACE_QUERY_TEMPLATE =
                 "SELECT hex(s.trace_id) as trace_id, hex(s.id) as span_id, hex(s.parent_id) as parent_id, " +
                         "start_ts as start_time_usec, start_ts+duration as end_time_usec, " +
                         "inet_ntoa(endpoint_ipv4 & conv('ffffffff', 16, 10)) as ipv4_address, endpoint_port " +

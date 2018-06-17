@@ -15,7 +15,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
     private val _influxdb: InfluxDB
 
     init {
-        if (dbUser != null && dbUser.isEmpty()) {
+        if (dbUser != null && !dbUser.isEmpty()) {
             _influxdb = InfluxDBFactory.connect(dbUrl, dbUser, dbPassword)
         } else {
             _influxdb = InfluxDBFactory.connect(dbUrl)
@@ -77,7 +77,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
         @Suppress("UNCHECKED_CAST") // Due to generics not allowing type equivalence
         val mappingClass = CpuMeasurement::class as KClass<GenericMeasurement>
         val cpuMeasures = runInfluxDbQueryForMeasurement(CPU_QUERY_TEMPLATE, mappingClass, containerId, timeMsec )
-        if (cpuMeasures.size < 1) {
+        if (cpuMeasures.isEmpty()) {
             throw IllegalStateException("Could not find CPU measurements to extract host from for container $containerId at time $timeMsec")
         }
         val cpuMeasurement = cpuMeasures[0] as CpuMeasurement
@@ -108,7 +108,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
         return resultList[0].cpuCount
     }
 
-    fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
+    private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
         val valueList = runInfluxDbQueryForMeasurement(queryTemplate, mappingClass, containerOrHostId, timeMsec)
 
         return findBestValueForPointFromList(valueList.toList(), timeMsec)
@@ -134,40 +134,40 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
 
     companion object {
 
-        val QUERY_WINDOW = "20s"
+        const val QUERY_WINDOW = "20s"
 
-        val CPU_QUERY_TEMPLATE = "select time, container_name, host, usage_total " +
+        const val CPU_QUERY_TEMPLATE = "select time, container_name, host, usage_total " +
                 "from docker_container_cpu " +
                 "where cpu = 'cpu-total' " +
                 "and container_id = '%s' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
-        val MEM_QUERY_TEMPLATE = "select time, container_name, usage " +
+        const val MEM_QUERY_TEMPLATE = "select time, container_name, usage " +
                 "from docker_container_mem " +
                 "where container_id = '%s' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
-        val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
+        const val DISKIO_QUERY_TEMPLATE = "select time, container_name, io_service_bytes_recursive_total " +
                 "from docker_container_blkio " +
                 "where container_id = '%s' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
-        val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
+        const val NETIO_QUERY_TEMPLATE = "select time, container_name, rx_bytes, tx_bytes " +
                 "from docker_container_net " +
                 "where container_id = '%s' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
-        val HOST_CPU_QUERY_TEMPLATE = "select time, host, time_active from cpu " +
+        const val HOST_CPU_QUERY_TEMPLATE = "select time, host, time_active from cpu " +
                 "where host = '%s' " +
                 "and cpu = 'cpu-total' " +
                 "and time > %d - %s and time < %d + %s " +
                 "order by time"
 
-        val HOST_CPU_COUNT_QUERY_TEMPLATE = "select n_cpus from system " +
+        const val HOST_CPU_COUNT_QUERY_TEMPLATE = "select n_cpus from system " +
                 "where host = '%s' limit 1"
 
         fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
