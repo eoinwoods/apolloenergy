@@ -45,7 +45,7 @@ class TestTraceCalculatorWithDatabase {
     // the 20180610-cpu-and-data-mix dataset for network address and start and end time
     @Test
     fun testThatCalculationForTraceReturnsNonZeroValues() {
-        val testTrace = Trace(setOf(Span("468CE081D5B05907", "EA3F1D9042A036B0",
+        val testTrace = Trace("test_trace1", setOf(Span("468CE081D5B05907", "EA3F1D9042A036B0",
                 "172.18.0.4", 1528666470513, 1528666470832)))
         val estimate = traceCalculator.calculateCpuMsecAndEnergyJoulesEstimateForTrace(testTrace)
         assertTrue(estimate.energyUsageJoules > 0)

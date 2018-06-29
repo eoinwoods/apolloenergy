@@ -32,36 +32,37 @@ class TestTrace {
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyTraceShouldBeRejected() {
-        Trace(emptySet())
+        Trace("", emptySet())
     }
 
     @Test
     fun rootSpanShouldBeIdentifiedWithChildren() {
-        val t = Trace(setOf(root, span1, span2))
+        val t = Trace("trace1", setOf(root, span1, span2))
         assertEquals("wrong root for trace", t.root, root)
     }
 
     @Test
     fun rootSpanShouldBeIdentifiedWithSingleSpan() {
-        val t = Trace(setOf(root))
+        val t = Trace("trace2", setOf(root))
         assertEquals("wrong root for trace", t.root, root)
     }
 
     @Test
     fun childrenShouldBeSpansLessRoot() {
-        val t = Trace(setOf(root, span1, span2))
+        val t = Trace("trace3", setOf(root, span1, span2))
         assertEquals("unexpected set of children", t.children, setOf(span1, span2))
     }
 
     @Test
     fun childrenShouldBeCorrectlyReturned() {
-        val t = Trace(setOf(root, span1, span2, span2_1, span2_2))
+        val t = Trace("trace4",
+                setOf(root, span1, span2, span2_1, span2_2))
         assertEquals("Wrong child set", setOf(span2_1, span2_2), t.findChildrenOfSpan(span2))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun traceWithTwoRootsShouldBeRejected() {
-        Trace(setOf(
+        Trace("trace5", setOf(
                 Span("fd45", "54C92796854B15C8","192.168.1.1", baseTimeMsec, baseTimeMsec+10),
                 Span("F59EAF6D7B9C5C49", "54C92796854B15C8","10.10.10.1", baseTimeMsec, baseTimeMsec+10)
         ))
@@ -72,7 +73,7 @@ class TestTrace {
         val root  = Span("C925BFAC9556A68A", "C925BFAC9556A68A", "1.1.1.1", baseTimeMsec+100, baseTimeMsec+500)
         val span1 = Span("C925BFAC9556A68A","cf56342a", "10.10.10.1", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
         val span2 = Span("C925BFAC9556A68A","c45e6a37", "192.168.1.1", baseTimeMsec+99, baseTimeMsec+300, root.spanId)
-        Trace(setOf(root, span1, span2))
+        Trace("trace6", setOf(root, span1, span2))
     }
 
     @Test
@@ -80,7 +81,7 @@ class TestTrace {
         val root  = Span("F59EAF6D7B9C5C49","F59EAF6D7B9C5C49", "1.1.1.1", baseTimeMsec+100, baseTimeMsec+500)
         val span1 = Span("F59EAF6D7B9C5C49","cf56342f", "10.10.10.1", baseTimeMsec+100, baseTimeMsec+200, root.spanId)
         val span2 = Span("F59EAF6D7B9C5C49","cf56342a", "192.168.1.1", baseTimeMsec+110, baseTimeMsec+300, root.spanId)
-        val t = Trace(setOf(root, span1, span2))
+        val t = Trace("trace7", setOf(root, span1, span2))
         assertTrue("wrong Trace start or end times", t.getStartTime() == baseTimeMsec+100L && t.getEndTime() == baseTimeMsec+500L)
     }
 }

@@ -30,20 +30,28 @@ class TestMySqlZipkinTraceManager {
     }
 
     @Test
+    fun testThatATraceIsPopulated() {
+        val jdbcTemplate = JdbcTemplate(getDataSource())
+        val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
+        val aTrace = traceManager.getTraces()[0]
+        assertEquals(aTrace.traceId, "2A3D78F82B281277")
+        assertEquals(aTrace.name, "http://invoke/single-cpu")
+    }
+
+    @Test
     fun testThatCorrectNumberOfSpansContainedInMultiSpanTrace() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val multiSpanTraceId = MULTI_SPAN_TRACE_ID
-        val trace = traceManager.getTrace(multiSpanTraceId)
-        assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
+        val trace = traceManager.getTraces().filter{t -> t.traceId == MULTI_SPAN_TRACE_ID}[0]
+        assertThat(trace.root.spanId, equalTo(MULTI_SPAN_TRACE_ID))
     }
 
     @Test
     fun testThatExampleSpanIsPopulated() {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
-        val multiSpanTraceId = MULTI_SPAN_TRACE_ID
-        val trace = traceManager.getTrace(multiSpanTraceId)
+        val traces = traceManager.getTraces()
+        val trace = traces.filter{t -> t.traceId == MULTI_SPAN_TRACE_ID}[0]
         val exampleSpans = trace.spans.asIterable().filter { it.parentId != null}
         val exampleSpan = exampleSpans[0]
         assertTrue(exampleSpan.startTimeMsec < exampleSpan.endTimeMsec)
@@ -60,7 +68,7 @@ class TestMySqlZipkinTraceManager {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
         val multiSpanTraceId = MULTI_SPAN_TRACE_ID
-        val trace = traceManager.getTrace(multiSpanTraceId)
+        val trace = traceManager.getTraces().filter{t -> t.traceId == multiSpanTraceId}[0]
         assertThat(trace.root.spanId, equalTo(multiSpanTraceId))
         var earliestStartMsec : Long = Long.MAX_VALUE
         var latestEndMsec : Long = 0

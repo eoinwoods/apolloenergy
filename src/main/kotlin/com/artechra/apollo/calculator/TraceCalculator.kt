@@ -28,7 +28,7 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager, netwo
             _log.debug("Span ${span.spanId}: cpuMsec=${containerUsage.usage.totalCpuMsec}; hostCpuMsec=${hostCpuMsecUsage.cpuUsageMsec}; hostEnergyJ=$hostEnergyUsage; usage%=$containerUsagePercentage spanEnergyJ=$spanEnergyJoules")
             estimateJoules += spanEnergyJoules.roundToLong()
         }
-        return EnergyEstimate(totalCpuMsec, estimateJoules)
+        return EnergyEstimate(totalCpuMsec, estimateJoules, t.name)
     }
 
     private fun calculateResourceUsageForSpan(s : Span) : ResourceUsageMeasurement {

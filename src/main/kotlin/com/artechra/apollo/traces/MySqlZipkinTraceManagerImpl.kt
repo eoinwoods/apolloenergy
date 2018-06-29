@@ -13,25 +13,26 @@ class MySqlZipkinTraceManagerImpl(private val jdbcConn : JdbcTemplate) : TraceMa
     override fun getTraces(): List<Trace> {
         val ret : MutableList<Trace> = ArrayList()
 
-        for (traceId in getRootSpans()) {
-            val trace = getTrace(traceId)
+        for (traceDetails in getRootSpans()) {
+            val trace = getTrace(traceDetails.first, traceDetails.second)
             ret.add(trace)
         }
         return ret
     }
 
-    override fun getTrace(traceId: String): Trace {
+    private fun getTrace(traceId: String, traceName: String): Trace {
         val spans = getSpansForTrace(traceId)
         if (spans.isEmpty()) {
             throw IllegalArgumentException("No data found for trace ID '$traceId'")
         }
-        return Trace(spans.toSet())
+        return Trace(traceName, spans.toSet())
     }
 
 
-    private fun getRootSpans() : List<String> {
+    private fun getRootSpans() : List<Pair<String,String>> {
         val ret = jdbcConn.query(ROOT_SPANS_QUERY) {
-            rs: ResultSet, _ : Int -> rs.getString("trace_id")
+            rs: ResultSet, _ : Int -> Pair(rs.getString("trace_id"),
+                                           rs.getString("name"))
         }
         return ret
     }
@@ -59,7 +60,7 @@ class MySqlZipkinTraceManagerImpl(private val jdbcConn : JdbcTemplate) : TraceMa
 
     companion object {
         const val ROOT_SPANS_QUERY = "SELECT hex(trace_id) as trace_id, start_ts/1000 as start_time_msec, name, duration " +
-                "FROM zipkin_spans WHERE trace_id = id"
+                "FROM zipkin_spans WHERE trace_id = id order by 1"
 
         const val SPANS_FOR_TRACE_QUERY_TEMPLATE =
                 "SELECT hex(s.trace_id) as trace_id, hex(s.id) as span_id, hex(s.parent_id) as parent_id, " +

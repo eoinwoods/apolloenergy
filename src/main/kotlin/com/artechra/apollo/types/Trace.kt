@@ -1,10 +1,12 @@
 package com.artechra.apollo.types
 
-data class Trace(val spans : Set<Span>) {
+data class Trace(val name: String, val spans : Set<Span>) {
     val root : Span
+    val traceId : String
     val children : Set<Span>
     init {
         root = findRoot(spans) ?: throw IllegalArgumentException("No root span found in Trace: $spans")
+        traceId = root.traceId
         children = spans.minus(root)
         if (findRoot(children) != null) {
             throw IllegalArgumentException("Cannot create Trace with more than one root span: $spans")
