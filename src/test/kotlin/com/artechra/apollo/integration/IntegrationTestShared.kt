@@ -23,6 +23,7 @@ class IntegrationTestShared {
         const val SPAN_END_TIME_MS   = 1528666372000
         const val HOST_NAME = "7a822ae18873"
         const val MULTI_SPAN_ZIPKIN_TRACE_ID = "468CE081D5B05907"
+        const val MULTI_SPAN_ZIPKIN_TRACE_NAME = "http:/invoke/cpu-data-mix"
 
         fun getTestDataSetLoadedName(dbConn : InfluxDbDecoratorImpl, databaseName : String) : String {
             val query = Query("SELECT * FROM apollo_check WHERE value = 1", databaseName)

@@ -28,7 +28,8 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
             0 to 44.6
     )
 
-    override fun getEnergyUsageForHostInJoules(hostName: String, startTimeMsec: Long, endTimeMsec: Long): Long {
+    override fun getEnergyUsageForHostForContainerInJoules(containerId: String, startTimeMsec: Long, endTimeMsec: Long): Long {
+        val hostName = influxdb.getHostForContainerAtTime(containerId, startTimeMsec)
 
         val hostUtilisation = influxdb.getHostCpuUtilisationDuringPeriod(hostName, startTimeMsec, endTimeMsec)
         val utilisation = Util.roundToNDecimalPlaces(hostUtilisation, 2)

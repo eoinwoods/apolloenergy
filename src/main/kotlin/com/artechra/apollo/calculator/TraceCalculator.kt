@@ -2,11 +2,14 @@ package com.artechra.apollo.calculator
 
 import com.artechra.apollo.netinfo.NetInfo
 import com.artechra.apollo.resusage.ResourceUsageManager
+import com.artechra.apollo.resusage.EnergyUsageManager
 import com.artechra.apollo.types.*
 import org.apache.logging.log4j.LogManager
 import kotlin.math.roundToLong
 
-class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager, networkMap : NetInfo) {
+class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager,
+                      private val networkMap : NetInfo,
+                      private val energyManager : EnergyUsageManager) {
     private val _log = LogManager.getLogger(TraceCalculator::class.qualifiedName)
 
     private val containers = networkMap.getContainersForAddresses()
@@ -19,7 +22,7 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager, netwo
             totalCpuMsec += containerUsage.usage.totalCpuMsec
 
             val hostCpuMsecUsage = getHostResourceUsageForSpan(span)
-            val hostEnergyUsage = getEnergyJoulesForHost(span.networkAddress, span.startTimeMsec, span.endTimeMsec)
+            val hostEnergyUsage = getEnergyJoulesForHostForSpan(span)
 
             assert(containerUsage.usage.totalCpuMsec > 0)
             assert(hostCpuMsecUsage.cpuUsageMsec > 0)
@@ -41,10 +44,9 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager, netwo
         return resourceUsageMgr.getHostResourceUsageForContainer(containerId, s.startTimeMsec, s.endTimeMsec)
     }
 
-    private fun getEnergyJoulesForHost(hostName : String, startTimeMsec : Long, endTimeMsec : Long) : Long {
-        println("getEnergyForHost($hostName, $startTimeMsec, $endTimeMsec)")
-        // TODO - to be implemented as simulated energy data access
-        return 100
+    private fun getEnergyJoulesForHostForSpan(s : Span) : Long {
+        val containerId = getContainerForNetworkAddress(s.networkAddress)
+        return energyManager.getEnergyUsageForHostForContainerInJoules(containerId, s.startTimeMsec, s.endTimeMsec)
     }
 
     private fun getContainerForNetworkAddress(address : String) : String {

@@ -3,6 +3,7 @@ package com.artechra.apollo
 import com.artechra.apollo.calculator.EnergyCalculator
 import com.artechra.apollo.calculator.EnergyCalculatorImpl
 import com.artechra.apollo.netinfo.NetInfoDockerJsonImpl
+import com.artechra.apollo.resusage.EnergyUsageManagerSimulator
 import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
@@ -27,6 +28,7 @@ class Application {
         val influxDbDecorator = InfluxDbDecoratorImpl(resDbUrl, resDbName, resDbUser, resDbPass)
         val resUsageMgr = ResourceUsageManagerInfluxDbImpl(influxDbDecorator)
 
+        val energyManager = EnergyUsageManagerSimulator(influxDbDecorator)
 
         val traceDbDriver = getConfigItem("apollo.tracedb.driver.class", configuration)
         val traceDbUrl = getConfigItem("apollo.tracedb.url", configuration)
@@ -34,7 +36,7 @@ class Application {
         val traceDbPass = getConfigItem("apollo.tracedb.password", configuration)
         val traceMgr = MySqlZipkinTraceManagerImpl(createJdbcTemplate(traceDbDriver, traceDbUrl, traceDbUser, traceDbPass))
 
-        return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo)
+        return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo, energyManager)
     }
 
     private fun getConfigItem(name : String, config : Map<String,String>) : String {

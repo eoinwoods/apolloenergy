@@ -10,6 +10,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource
 import javax.sql.DataSource
 
 const val MULTI_SPAN_TRACE_ID = IntegrationTestShared.MULTI_SPAN_ZIPKIN_TRACE_ID
+const val MULTI_SPAN_TRACE_NAME = IntegrationTestShared.MULTI_SPAN_ZIPKIN_TRACE_NAME
 const val TEST_DATA_SET = IntegrationTestShared.TEST_SET_NAME
 
 class TestMySqlZipkinTraceManager {
@@ -34,8 +35,8 @@ class TestMySqlZipkinTraceManager {
         val jdbcTemplate = JdbcTemplate(getDataSource())
         val traceManager = MySqlZipkinTraceManagerImpl(jdbcTemplate)
         val aTrace = traceManager.getTraces()[0]
-        assertEquals(aTrace.traceId, "2A3D78F82B281277")
-        assertEquals(aTrace.name, "http://invoke/single-cpu")
+        assertEquals(MULTI_SPAN_TRACE_ID, aTrace.traceId)
+        assertEquals(MULTI_SPAN_TRACE_NAME, aTrace.name)
     }
 
     @Test

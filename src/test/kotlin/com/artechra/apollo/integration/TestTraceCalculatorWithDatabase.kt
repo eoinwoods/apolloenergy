@@ -3,6 +3,7 @@ package com.artechra.apollo.integration
 import com.artechra.apollo.calculator.TraceCalculator
 import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
+import com.artechra.apollo.stubs.StubEnergyManager
 import com.artechra.apollo.stubs.StubNetInfo
 import com.artechra.apollo.types.Span
 import com.artechra.apollo.types.Trace
@@ -38,7 +39,7 @@ class TestTraceCalculatorWithDatabase {
                 stubNetInfo.containerToAddrMap.values.toTypedArray())
         assertTrue(stubNetInfo.containerToAddrMap.keys.toTypedArray() contentEquals
                 stubNetInfo.addrToContainerMap.values.toTypedArray())
-        traceCalculator = TraceCalculator(resUsageManager, stubNetInfo)
+        traceCalculator = TraceCalculator(resUsageManager, stubNetInfo, StubEnergyManager())
     }
 
     // Note that this mocked up test relies on values in the InfluxDB database matching
