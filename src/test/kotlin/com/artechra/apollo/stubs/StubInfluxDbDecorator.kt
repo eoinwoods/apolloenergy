@@ -34,7 +34,7 @@ class StubInfluxDbDecorator(private val hostCpuUtilisation :Map<Long, Double>) :
     }
 
     override fun getHostForContainerAtTime(containerId: String, timeMsec: Long): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return "nohost";
     }
 
     override fun getHostCpuCount(hostName: String): Long {
