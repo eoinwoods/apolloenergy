@@ -52,7 +52,14 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
     // Converts decimal between 0 and 0.99 to next lowest 10% value (e.g. 0.47 to 40)
     private fun calculateLowerPercentageBound(percentage: Double): Int {
         assert(percentage < 1.0 && percentage > 0.0)
-        return floor(percentage * 10).roundToInt() * 10
+        val percentValue = floor(percentage * 100).roundToInt()
+        val lowerBound =
+                if (percentValue == 100) {
+                    90
+                } else {
+                    percentValue - percentValue.rem(10)
+                }
+        return lowerBound
     }
 
     private fun calculatePowerValueEstimateForUtilisationInW(lowBound: Int, lowPowerValue: Double,

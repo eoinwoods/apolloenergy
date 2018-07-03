@@ -20,9 +20,11 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager,
         for (span in t.spans) {
             val containerUsage = calculateResourceUsageForSpan(span)
             totalCpuMsec += containerUsage.usage.totalCpuMsec
+            _log.debug("Calculated container usage of ${containerUsage} ")
 
             val hostCpuMsecUsage = getHostResourceUsageForSpan(span)
             val hostEnergyUsage = getEnergyJoulesForHostForSpan(span)
+            _log.debug("Calculated host CPU usage of ${hostCpuMsecUsage} ms and host energy of ${hostEnergyUsage}J")
 
             assert(containerUsage.usage.totalCpuMsec > 0)
             assert(hostCpuMsecUsage.cpuUsageMsec > 0)
