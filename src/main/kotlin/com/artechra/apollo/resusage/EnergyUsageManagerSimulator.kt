@@ -2,6 +2,7 @@ package com.artechra.apollo.resusage
 
 import com.artechra.apollo.types.Util
 import kotlin.math.floor
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -14,18 +15,21 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
     //
     // Measured via the SPEC Power SSJ 2008 test: https://www.spec.org/power_ssj2008/
 
+    // I have added the power/percent_utilisation ratio too as a comment
+    // This shows how much more efficieht the machine is as it gets busy
+    // So running a workload on a busy server uses less energy for that workload
     private val powerConsumptionMetrics = mapOf(
-            100 to 272.0,
-            90 to 238.0,
-            80 to 205.0,
-            70 to 181.0,
-            60 to 163.0,
-            50 to 150.0,
-            40 to 136.0,
-            30 to 120.0,
-            20 to 102.0,
-            10 to 84.8,
-            0 to 44.6
+            100 to 272.0, // 2.72
+            90 to 238.0,  // 2.65
+            80 to 205.0,  // 2.56
+            70 to 181.0,  // 2.59
+            60 to 163.0,  // 2.72
+            50 to 150.0,  // 3
+            40 to 136.0,  // 3.4
+            30 to 120.0,  // 4
+            20 to 102.0,  // 5.1
+            10 to 84.8,   // 8.48
+            0 to 44.6     // 44.6
     )
 
     override fun getEnergyUsageForHostForContainerInJoules(containerId: String, startTimeMsec: Long, endTimeMsec: Long): Long {
@@ -53,12 +57,9 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
     private fun calculateLowerPercentageBound(percentage: Double): Int {
         assert(percentage < 1.0 && percentage > 0.0)
         val percentAsInteger = floor(percentage * 100).roundToInt()
-        val lowerBound =
-                if (percentAsInteger == 100) {
-                    90
-                } else {
-                    percentAsInteger - percentAsInteger.rem(10)
-                }
+        // The highest possible lower bound is 90 ... if the percentage is > 90 we use the
+        // 90-100 class as it's the top
+        val lowerBound = min(percentAsInteger - percentAsInteger.rem(10), 90)
         return lowerBound
     }
 
