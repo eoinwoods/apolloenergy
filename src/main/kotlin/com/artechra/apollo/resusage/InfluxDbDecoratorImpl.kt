@@ -10,7 +10,6 @@ import kotlin.reflect.KClass
 
 class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: String? = null, dbPassword: String? = null) : InfluxDbDecorator {
 
-    private val _log = LogManager.getLogger(this.javaClass.name)
 
     private val _influxdb: InfluxDB
 
@@ -97,7 +96,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
     // in the "system" measurement and extract the value from that row
     override fun getHostCpuCount(hostName : String) : Long {
         val query = HOST_CPU_COUNT_QUERY_TEMPLATE.format(hostName)
-        _log.debug("Querying InfluxDB for host CPU count via query $query")
+        LOG.debug("Querying InfluxDB for host CPU count via query $query")
         val dbQuery = Query(query, dbName)
         val result = _influxdb.query(dbQuery)
         val resultMapper = InfluxDBResultMapper()
@@ -118,7 +117,7 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
         val mappingClass = mappingKClass.java
         val timeAsNanoSec = Util.msecToNanoSec(timeMsec)
         val query = queryTemplate.format(containerOrHostId, timeAsNanoSec, QUERY_WINDOW, timeAsNanoSec, QUERY_WINDOW)
-        _log.debug("Querying InfluxDB for ${mappingClass.name} via query $query")
+        LOG.debug("Querying InfluxDB for ${mappingClass.name} via query $query")
         val dbQuery = Query(query, dbName)
         val result = _influxdb.query(dbQuery)
 
@@ -133,6 +132,8 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
 
 
     companion object {
+
+        private val LOG = LogManager.getLogger(InfluxDbDecoratorImpl::class.java)
 
         const val QUERY_WINDOW = "20s"
 
@@ -172,14 +173,16 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
 
         fun findBestValueForPointFromList(values: List<GenericMeasurement>, pointTimeMillis: Long): Long {
             // This state implies that we didn't get at least two rows back from the database
-            // meaning we've asked about a non-existent state (e.g. no such container) or
-            // we've asked for a measurement not associated with the container during the requested
-            // time (e.g. a container that didn't do disk IO during the period)
+            // that the point in time lies between.  This means we've asked about a non-existent
+            // state (e.g. no such container) or we've asked for a measurement not associated
+            // with the container during the requested time (e.g. a container that didn't do
+            // disk IO during the period)
             //
             // This ambiguity means that we return 0 here, but at a higher level we need to check for
             // situations with a series of 0 values as possible situations where an invalid query
             // has been issued
-            if (values.size < 2) {
+            if (values.size < 2 || pointTimeMillis < values[0].timeMillis || pointTimeMillis > values.last().timeMillis) {
+                LOG.warn("Could not use list $values to find value for point in time $pointTimeMillis")
                 return 0
             }
 
