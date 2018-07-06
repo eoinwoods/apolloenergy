@@ -11,3 +11,9 @@ container usage statistics in InfluxDB.
 
 Configuration in etc/apollo.properties
 
+This version of the code was completed on 6th July 2018 (tag v2_finalfixes).
+
+It was abandoned due to the problem of estimating usage consumption by
+an individual span within sample intervals.  V3 solves this by measuring
+resource usage at container level.
+
