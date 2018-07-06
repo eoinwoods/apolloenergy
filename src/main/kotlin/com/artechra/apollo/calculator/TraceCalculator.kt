@@ -14,26 +14,22 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager,
 
     private val containers = networkMap.getContainersForAddresses()
 
-    fun calculateResourceUsageForContainer(containerId : String, startTimeMsec : Long, endTimeMsec : Long) : ResourceUsageMeasurement {
-        return resourceUsageMgr.getResourceUsage(containerId, startTimeMsec, endTimeMsec)
-    }
-
     fun calculateCpuMsecAndEnergyJoulesEstimateForTrace(t : Trace) : EnergyEstimate {
         var estimateJoules = 0L
         var totalCpuMsec = 0L
-        val containerIds = t.spans.map {s -> s.networkAddress}.map {a -> getContainerForNetworkAddress(a)}
 
-        val containerUsage = containerIds.map {id -> id to calculateResourceUsageForContainer(id, t.getStartTime(), t.getEndTime())}.toMap()
-        val hostUsage = containerIds.map {id -> id to resourceUsageMgr.getHostResourceUsageForContainer(id, t.getStartTime(), t.getEndTime())}.toMap()
-        val hostEnergy = containerIds.map { id -> id to energyManager.getEnergyUsageForHostForContainerInJoules(id, t.getStartTime(), t.getEndTime())}.toMap()
+        val containerIds = t.spans.map {s -> s.networkAddress}.map {a -> getContainerForNetworkAddress(a)}.toSet()
+        val containerResourceUsage = containerIds.map { id -> id to resourceUsageMgr.getResourceUsage(id, t.getStartTime(), t.getEndTime())}.toMap()
+        val hostResourceUsage = containerIds.map { id -> id to resourceUsageMgr.getHostResourceUsageForContainer(id, t.getStartTime(), t.getEndTime())}.toMap()
+        val hostEnergyUsage = containerIds.map { id -> id to energyManager.getEnergyUsageForHostForContainerInJoules(id, t.getStartTime(), t.getEndTime())}.toMap()
 
         for (id in containerIds) {
-            val containerCpuMsec = containerUsage[id]!!.usage.totalCpuMsec
-            val hostCpuMsecForContainer = hostUsage[id]!!.cpuUsageMsec
+            val containerCpuMsec = containerResourceUsage[id]!!.usage.totalCpuMsec
+            val hostCpuMsecForContainer = hostResourceUsage[id]!!.cpuUsageMsec
             totalCpuMsec += containerCpuMsec
             val containerUsagePercentage = containerCpuMsec /
                     (hostCpuMsecForContainer*1.0)
-            val containerEnergyJ = hostEnergy[id]!! * containerUsagePercentage
+            val containerEnergyJ = hostEnergyUsage[id]!! * containerUsagePercentage
             estimateJoules += containerEnergyJ.roundToLong()
             _log.debug("Container $id totalCpuMsec=$containerCpuMsec hostCpuMsec=$hostCpuMsecForContainer containerUsage=$containerUsagePercentage containerEnergy=$containerEnergyJ")
         }
