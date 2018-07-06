@@ -1,4 +1,4 @@
-Apollo Energy Calculator - v2
+Apollo Energy Calculator - V3
 -----------------------------
 
 Implementation of the "Apollo" energy estimation approach as a command
