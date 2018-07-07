@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager
 import kotlin.math.roundToLong
 
 class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager,
-                      private val networkMap : NetInfo,
+                      networkMap : NetInfo,
                       private val energyManager : EnergyUsageManager) {
     private val _log = LogManager.getLogger(TraceCalculator::class.qualifiedName)
 
