@@ -23,6 +23,8 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
 
+//testDataSet = "20180610-cpu-data-mix"
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
@@ -33,6 +35,12 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+//task loadTestData(type:Exec) {
+//    workingDir "./data"
+//    commandLine "load_dataset.sh $testDataSet"
+//}
+
 
 jar {
     manifest {
@@ -52,6 +60,7 @@ dependencies {
     compile 'mysql:mysql-connector-java:6.0.6'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.6.1'
     compile 'com.beust:klaxon:2.0.11'
+    compile 'com.natpryce:konfig:1.6.10.0'
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     runtime group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.1'
