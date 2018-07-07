@@ -7,33 +7,45 @@ import com.artechra.apollo.resusage.EnergyUsageManagerSimulator
 import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import com.artechra.apollo.traces.MySqlZipkinTraceManagerImpl
+import com.natpryce.konfig.*
+import com.natpryce.konfig.ConfigurationProperties.Companion.systemProperties
 import org.apache.logging.log4j.LogManager
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
+import java.io.File
 import java.io.FileInputStream
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
+val netInfoFile = Key("apollo.network.info.filename", stringType)
+val resDbUrl = Key("apollo.resdb.url", stringType)
+val resDbName = Key("apollo.resdb.dbname", stringType)
+val resDbUser = Key("apollo.resdb.dbname", stringType)
+val resDbPass = Key("apollo.resdb.password", stringType)
+val traceDbDriver = Key("apollo.tracedb.driver.class", stringType)
+val traceDbUrl = Key("apollo.tracedb.url", stringType)
+val traceDbUser = Key("apollo.tracedb.username", stringType)
+val traceDbPass = Key("apollo.tracedb.password", stringType)
 
 class Application {
-    fun assemble(configuration : Map<String, String>) : EnergyCalculator {
-        val netInfoFile = getConfigItem("apollo.network.info.filename", configuration)
+    fun assemble(configuration : Configuration) : EnergyCalculator {
+        val netInfoFile = configuration.get(netInfoFile)
         val netInfo = NetInfoDockerJsonImpl(netInfoFile)
 
-        val resDbUrl = getConfigItem("apollo.resdb.url", configuration)
-        val resDbName = getConfigItem("apollo.resdb.dbname", configuration)
-        val resDbUser = getConfigItem("apollo.resdb.dbname", configuration)
-        val resDbPass = getConfigItem("apollo.resdb.password", configuration)
+        val resDbUrl = configuration.get(resDbUrl)
+        val resDbName = configuration.get(resDbName)
+        val resDbUser = configuration.get(resDbUser)
+        val resDbPass = configuration.get(resDbPass)
         val influxDbDecorator = InfluxDbDecoratorImpl(resDbUrl, resDbName, resDbUser, resDbPass)
         val resUsageMgr = ResourceUsageManagerInfluxDbImpl(influxDbDecorator)
 
         val energyManager = EnergyUsageManagerSimulator(influxDbDecorator)
 
-        val traceDbDriver = getConfigItem("apollo.tracedb.driver.class", configuration)
-        val traceDbUrl = getConfigItem("apollo.tracedb.url", configuration)
-        val traceDbUser = getConfigItem("apollo.tracedb.username", configuration)
-        val traceDbPass = getConfigItem("apollo.tracedb.password", configuration)
+        val traceDbDriver = configuration.get(traceDbDriver)
+        val traceDbUrl = configuration.get(traceDbUrl)
+        val traceDbUser = configuration.get(traceDbUser)
+        val traceDbPass = configuration.get(traceDbPass)
         val traceMgr = MySqlZipkinTraceManagerImpl(createJdbcTemplate(traceDbDriver, traceDbUrl, traceDbUser, traceDbPass))
 
         return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo, energyManager)
@@ -55,19 +67,13 @@ class Application {
             return JdbcTemplate(dataSource)
     }
 
-    fun loadConfiguration(configFileName : String) : Map<String, String> {
-        val prop = Properties()
-        FileInputStream(configFileName).use {
-            prop.load(it)
-        }
+    fun loadConfiguration(configFileName : String) : Configuration {
 
-        val ret : MutableMap<String, String> = HashMap()
-        for (k in prop.keys) {
-            val key = k as String
-            val value = prop[key] as String
-            ret[key] = value
-        }
-        return ret
+        val config = systemProperties() overriding
+                EnvironmentVariables() overriding
+                ConfigurationProperties.fromFile(File(configFileName))
+
+        return config
     }
 
 }
