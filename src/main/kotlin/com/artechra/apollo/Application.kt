@@ -13,9 +13,6 @@ import org.apache.logging.log4j.LogManager
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import java.io.File
-import java.io.FileInputStream
-import java.util.*
-import kotlin.collections.HashMap
 import kotlin.system.exitProcess
 
 val netInfoFile = Key("apollo.network.info.filename", stringType)
@@ -30,29 +27,25 @@ val traceDbPass = Key("apollo.tracedb.password", stringType)
 
 class Application {
     fun assemble(configuration : Configuration) : EnergyCalculator {
-        val netInfoFile = configuration.get(netInfoFile)
+        val netInfoFile = configuration[netInfoFile]
         val netInfo = NetInfoDockerJsonImpl(netInfoFile)
 
-        val resDbUrl = configuration.get(resDbUrl)
-        val resDbName = configuration.get(resDbName)
-        val resDbUser = configuration.get(resDbUser)
-        val resDbPass = configuration.get(resDbPass)
+        val resDbUrl = configuration[resDbUrl]
+        val resDbName = configuration[resDbName]
+        val resDbUser = configuration[resDbUser]
+        val resDbPass = configuration[resDbPass]
         val influxDbDecorator = InfluxDbDecoratorImpl(resDbUrl, resDbName, resDbUser, resDbPass)
         val resUsageMgr = ResourceUsageManagerInfluxDbImpl(influxDbDecorator)
 
         val energyManager = EnergyUsageManagerSimulator(influxDbDecorator)
 
-        val traceDbDriver = configuration.get(traceDbDriver)
-        val traceDbUrl = configuration.get(traceDbUrl)
-        val traceDbUser = configuration.get(traceDbUser)
-        val traceDbPass = configuration.get(traceDbPass)
+        val traceDbDriver = configuration[traceDbDriver]
+        val traceDbUrl = configuration[traceDbUrl]
+        val traceDbUser = configuration[traceDbUser]
+        val traceDbPass = configuration[traceDbPass]
         val traceMgr = MySqlZipkinTraceManagerImpl(createJdbcTemplate(traceDbDriver, traceDbUrl, traceDbUser, traceDbPass))
 
         return EnergyCalculatorImpl(resUsageMgr, traceMgr, netInfo, energyManager)
-    }
-
-    private fun getConfigItem(name : String, config : Map<String,String>) : String {
-        return config[name] ?: throw IllegalStateException("No value for configuration item $name")
     }
 
     private fun createJdbcTemplate(dbDriver: String, dbUrl : String, dbUser : String, dbPass : String) : JdbcTemplate {
@@ -69,11 +62,9 @@ class Application {
 
     fun loadConfiguration(configFileName : String) : Configuration {
 
-        val config = systemProperties() overriding
+        return systemProperties() overriding
                 EnvironmentVariables() overriding
                 ConfigurationProperties.fromFile(File(configFileName))
-
-        return config
     }
 
 }
