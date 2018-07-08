@@ -49,8 +49,8 @@ class TestTraceCalculatorWithDatabase {
         val testTrace = Trace("test_trace1", setOf(Span("468CE081D5B05907", "EA3F1D9042A036B0",
                 "172.18.0.4", 1528666470513, 1528666470832)))
         val estimate = traceCalculator.calculateCpuMsecAndEnergyJoulesEstimateForTrace(testTrace)
-        assertTrue(estimate.energyUsageJoules > 0)
-        assertTrue(estimate.totalCpuMsec > 0)
+        assertTrue(estimate.traceEnergyEstimateJ > 0)
+        assertTrue(estimate.traceCpuMsec > 0)
     }
 
 }

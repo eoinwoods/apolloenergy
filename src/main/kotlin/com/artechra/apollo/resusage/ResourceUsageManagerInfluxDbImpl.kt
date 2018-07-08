@@ -31,18 +31,24 @@ class ResourceUsageManagerInfluxDbImpl(val influxdb : InfluxDbDecorator) : Resou
         return ResourceUsageMeasurement(startTimeMsec, containerId, ResourceUsage(cpuUsageMsec, memUsage, diskIo, netIo))
     }
 
+    override fun getHostResourceUsage(hostname: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
+        _log.info("Get resource usage for host $hostname between $startTimeMsec and $endTimeMsec")
+        val cpuUsageMsec = getHostCpuUsageMsec(hostname, startTimeMsec, endTimeMsec)
+        if (cpuUsageMsec <= 0) {
+            throw IllegalStateException("No host CPU usage for host $hostname between $startTimeMsec and $endTimeMsec")
+        }
+        return HostResourceMeasurement(startTimeMsec, hostname, cpuUsageMsec)
+    }
+
     override fun getHostResourceUsageForContainer(containerId: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
         // There is a baked in assumption here that the container doesn't change execution host between
         // startTimeMsec and endTimeMsec.  In this context where those times mark the start and end
         // of a tracing span, that is a reasonable assumption.  In other contexts it could be invalid.
         val hostName = influxdb.getHostForContainerAtTime(containerId, startTimeMsec)
         _log.info("Get resource usage for host $hostName (via container $containerId) from $startTimeMsec to $endTimeMsec")
-        val cpuUsageMsec = getHostCpuUsageMsec(hostName, startTimeMsec, endTimeMsec)
-        if (cpuUsageMsec <= 0) {
-            throw IllegalStateException("No host CPU usage for host $hostName between $startTimeMsec and $endTimeMsec")
-        }
-        return HostResourceMeasurement(startTimeMsec, hostName, cpuUsageMsec)
+        return getHostResourceUsage(hostName, startTimeMsec, endTimeMsec)
     }
+
 
     private fun getCpuUsageMsec(containerId: String, startTimeMsec: Long, endTimeMsec: Long) : Long {
         val startTimeEstimate = influxdb.getBestCpuMeasureForTime(containerId, startTimeMsec)

@@ -24,7 +24,7 @@ class TestEnergyCalculator {
         val result = ec.calculateEnergyForRequests()
         assertEquals(1, result.size)
         assertEquals("54C92796854B15C8", result.keys.toTypedArray()[0])
-        assertTrue(result["54C92796854B15C8"]!!.totalCpuMsec > 0)
-        assertTrue(result["54C92796854B15C8"]!!.energyUsageJoules > 0)
+        assertTrue(result["54C92796854B15C8"]!!.traceCpuMsec > 0)
+        assertTrue(result["54C92796854B15C8"]!!.traceEnergyEstimateJ > 0)
     }
 }

@@ -4,6 +4,7 @@ import com.artechra.apollo.resusage.InfluxDbDecoratorImpl
 import com.artechra.apollo.resusage.ResourceUsageManager
 import com.artechra.apollo.resusage.ResourceUsageManagerInfluxDbImpl
 import org.junit.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private const val CPUHOG_BUSY_START_MSEC   = 1528666452000
@@ -44,11 +45,21 @@ class TestInfluxDbResourceManager {
     }
 
     @Test
-    fun testGetResourceUsageForHostInTestDatasetReturnsValidValues() {
+    fun testGetResourceUsageForHostViaContainerInTestDatasetReturnsValidValues() {
         val resUsage = this.resUsageManager.getHostResourceUsageForContainer(IntegrationTestShared.GATEWAY_CONTAINER_ID,
                 IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
-        println("REUSAGE: $resUsage")
-        assertTrue(resUsage.cpuUsageMsec > 0, "No CPU reported")
+        println("RESUSAGE: $resUsage")
+        assertEquals(178, resUsage.cpuUsageMsec, "Wrong CPU reported") // Hand calculated
+        assertEquals(IntegrationTestShared.HOST_NAME, resUsage.hostname, "Wrong hostname in measurement")
+    }
+
+    @Test
+    fun testGetResourceUsageForHostInTestDatasetReturnsValidValues() {
+        val resUsage = this.resUsageManager.getHostResourceUsage(IntegrationTestShared.HOST_NAME,
+                IntegrationTestShared.SPAN_START_TIME_MS, IntegrationTestShared.SPAN_END_TIME_MS)
+        println("RESUSAGE: $resUsage")
+        assertEquals(178, resUsage.cpuUsageMsec, "Wrong CPU reported") // Hand calculated
+        assertEquals(IntegrationTestShared.HOST_NAME, resUsage.hostname, "Wrong hostname in measurement")
     }
 
     @Test(expected = IllegalStateException::class)

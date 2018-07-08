@@ -32,10 +32,8 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
             0 to 44.6     // 44.6
     )
 
-    override fun getEnergyUsageForHostForContainerInJoules(containerId: String, startTimeMsec: Long, endTimeMsec: Long): Long {
-        val hostName = influxdb.getHostForContainerAtTime(containerId, startTimeMsec)
-
-        val hostUtilisation = influxdb.getHostCpuUtilisationDuringPeriod(hostName, startTimeMsec, endTimeMsec)
+    override fun getEnergyUsageForHostInJoules(hostname: String, startTimeMsec: Long, endTimeMsec: Long): Long {
+        val hostUtilisation = influxdb.getHostCpuUtilisationDuringPeriod(hostname, startTimeMsec, endTimeMsec)
         val utilisation = Util.roundToNDecimalPlaces(hostUtilisation, 2)
         val lowBound = calculateLowerPercentageBound(utilisation)
         assert(lowBound % 10 == 0 && lowBound <= 90 && lowBound >= 0, { "invalid low bound $lowBound" })
@@ -51,6 +49,11 @@ class EnergyUsageManagerSimulator(val influxdb: InfluxDbDecorator) : EnergyUsage
         val durationSec = (endTimeMsec - startTimeMsec) / 1000
         // J = W * seconds
         return (powerEstimateW * durationSec).roundToLong()
+    }
+
+    override fun getEnergyUsageForHostForContainerInJoules(containerId: String, startTimeMsec: Long, endTimeMsec: Long): Long {
+        val hostName = influxdb.getHostForContainerAtTime(containerId, startTimeMsec)
+        return getEnergyUsageForHostInJoules(hostName, startTimeMsec, endTimeMsec)
     }
 
     // Converts decimal between 0 and 0.99 to next lowest 10% value (e.g. 0.47 to 40)

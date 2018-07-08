@@ -15,9 +15,19 @@ class TestEnergyUsageManagerSimulator {
     private val influxDb = StubInfluxDbDecorator(utilisationMetrics)
 
     @Test
-    fun testUtilisationIsCredible() {
+    fun testContainerHostUtilisationIsCredible() {
         val simulator = EnergyUsageManagerSimulator(influxDb)
         val energyJ = simulator.getEnergyUsageForHostForContainerInJoules("0xanycontainerid", 1528666368000, 1528666378000)
+        // This value is derived from the wattage values in the simulator plus the usage values
+        // above between ... 368... and ...378... with CPU usage between 57% and 99%
+        // with a duration from startTime and endTime above (10 seconds)
+        assertEquals(2002, energyJ)
+    }
+
+    @Test
+    fun testHostUtilisationIsCredible() {
+        val simulator = EnergyUsageManagerSimulator(influxDb)
+        val energyJ = simulator.getEnergyUsageForHostInJoules("anyhost", 1528666368000, 1528666378000)
         // This value is derived from the wattage values in the simulator plus the usage values
         // above between ... 368... and ...378... with CPU usage between 57% and 99%
         // with a duration from startTime and endTime above (10 seconds)

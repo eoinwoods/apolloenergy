@@ -6,12 +6,15 @@ import com.artechra.apollo.types.ResourceUsage
 import com.artechra.apollo.types.ResourceUsageMeasurement
 
 class StubResourceUsageManager(private val containerResourceRecords: Map<String, ResourceUsage>,
-                               private val containerToNetworkRecords: Map<String, String>,
-                               private val hostCpuResourceRecords: Map<String, Long>) : ResourceUsageManager {
+                               private val hostCpuResourceRecords: Map<String, HostResourceMeasurement>) : ResourceUsageManager {
     override fun getHostResourceUsageForContainer(containerId: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
         val rr = hostCpuResourceRecords[containerId] ?: throw IllegalStateException("No host resource record for container $containerId")
-        val host = containerToNetworkRecords[containerId]
-        return HostResourceMeasurement(System.currentTimeMillis(), host!!, rr)
+        return rr
+    }
+
+    override fun getHostResourceUsage(hostname: String, startTimeMsec: Long, endTimeMsec: Long): HostResourceMeasurement {
+        val rr = hostCpuResourceRecords.values.filter { it.hostname.equals(hostname) }.first()
+        return rr
     }
 
     override fun getResourceUsage(containerId: String, startTimeMsec: Long, endTimeMsec: Long): ResourceUsageMeasurement {

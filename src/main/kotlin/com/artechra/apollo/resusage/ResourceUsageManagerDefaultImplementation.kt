@@ -9,6 +9,10 @@ class ResourceUsageManagerDefaultImplementation : ResourceUsageManager {
         return HostResourceMeasurement(1234567890, "host1", 43250)
     }
 
+    override fun getHostResourceUsage(hostname : String, startTimeMsec: Long, endTimeMsec: Long) : HostResourceMeasurement {
+        return HostResourceMeasurement(1234567890, "host1", 43250)
+    }
+
     override fun getResourceUsage(containerId : String, startTimeMsec : Long, endTimeMsec : Long) : ResourceUsageMeasurement {
         return ResourceUsageMeasurement(1234567890, "b38b452428f7", ResourceUsage(2000, 200, 123, 456))
     }
