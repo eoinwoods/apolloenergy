@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # 
 # A run script for EnergyApollo to run it via the "fat" jar and execute
 # against a specific data set using the default properties file
@@ -21,12 +21,12 @@ do
 	   exit 2
 	fi
 
-	(cd $DATADIR && $DATADIR/load_dataset.sh $data_set)
-
 	if [ ! -d "$DATADIR/$data_set" ]
 	then
-	   $DATA_DIR/unpack_dataset.sh $data_set
+	   (cd $DATADIR; ./unpack_dataset.sh ${data_set}.tar)
 	fi
+
+	(cd $DATADIR && $DATADIR/load_dataset.sh $data_set)
 
 	#logging_config=-Dlog4j.configurationFile=etc/log4j.xml
 	# -Dapollo.network.info.filename=abc123
