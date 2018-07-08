@@ -23,7 +23,7 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
 
-def testDataSet = "20180610-cpu-data-mix"
+def testDataSet = "itest-dataset-20180610"
 
 compileKotlin {
     kotlinOptions {

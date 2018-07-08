@@ -15,8 +15,8 @@ class IntegrationTestShared {
         const val MYSQL_USER = "zipkin"
         const val MYSQL_PASS = "zipkin"
 
-        // These values correspond to data in test data set '20180610-cpu-data-mix'
-        const val TEST_SET_NAME = "20180610-cpu-data-mix"
+        // These values correspond to data in test data set 'itest-dataset-20180610'
+        const val TEST_SET_NAME = "itest-dataset-20180610"
         const val GATEWAY_CONTAINER_ID = "ffd31b51662c9e786bc476329474ed51b4ba780652bebd9f8b73eee7915d7da2"
         const val INFLUXDB_CONTAINER_ID = "7a822ae188738e97b404f7fd4f5249676d41763c8b634f2055c139781e7347fe"
         const val SPAN_START_TIME_MS = 1528666358000
