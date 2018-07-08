@@ -81,7 +81,7 @@ fun main(args: Array<String>) {
     val propsFileName = args[0]
     val app = Application()
     val config = app.loadConfiguration(propsFileName)
-    _log.info("CONFIG: $config")
+    _log.debug("CONFIG: ${config.list()}")
     val calc = app.assemble(config)
     val energyUsage = calc.calculateEnergyForRequests()
     println("Energy usage for traces:")

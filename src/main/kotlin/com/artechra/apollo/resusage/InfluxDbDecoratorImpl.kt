@@ -110,7 +110,11 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
     private fun getBestMeasureForContainerOrHostAtTime(queryTemplate: String, mappingClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): Long {
         val valueList = runInfluxDbQueryForMeasurement(queryTemplate, mappingClass, containerOrHostId, timeMsec)
 
-        return findBestValueForPointFromList(valueList.toList(), timeMsec)
+        val value =  findBestValueForPointFromList(valueList.toList(), timeMsec)
+        if (value < 1) {
+            LOG.warn("Could not use list $valueList of type ${mappingClass.simpleName} to find value for point in time $timeMsec")
+        }
+        return value
     }
 
     private fun runInfluxDbQueryForMeasurement(queryTemplate: String, mappingKClass : KClass<GenericMeasurement>, containerOrHostId: String, timeMsec: Long): List<GenericMeasurement> {
@@ -182,7 +186,6 @@ class InfluxDbDecoratorImpl(dbUrl: String, private val dbName: String, dbUser: S
             // situations with a series of 0 values as possible situations where an invalid query
             // has been issued
             if (values.size < 2 || pointTimeMillis < values[0].timeMillis || pointTimeMillis > values.last().timeMillis) {
-                LOG.warn("Could not use list $values to find value for point in time $pointTimeMillis")
                 return 0
             }
 
