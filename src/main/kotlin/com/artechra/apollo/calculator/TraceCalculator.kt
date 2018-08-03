@@ -44,7 +44,7 @@ class TraceCalculator(private val resourceUsageMgr : ResourceUsageManager,
         val totalHostEnergyJ = hostEnergyUsage.values.reduce{ j1, j2 -> j1+j2 }
 
         val totalContainerPercentage = (totalCpuMsec / (totalHostMsec * 1.0) * 100).roundToInt()
-        return EnergyEstimate(totalCpuMsec, totalHostMsec, totalContainerPercentage, estimateJoules, totalHostEnergyJ, t.name)
+        return EnergyEstimate(t.getStartTime(), t.getEndTime(), totalCpuMsec, totalHostMsec, totalContainerPercentage, estimateJoules, totalHostEnergyJ, t.name)
     }
 
     private fun getContainerForNetworkAddress(address : String) : String {
